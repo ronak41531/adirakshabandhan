@@ -1,6 +1,6 @@
 /* =========================================
    AADI RAKSHA BANDHAN WEBSITE
-   EXACT MP3 VOICE SYSTEM
+   EXACT MP3 VOICE VERSION
 ========================================= */
 
 
@@ -45,54 +45,69 @@ function showScreen(id) {
 
 
 /* =========================================
-   EXACT MP3 VOICE SYSTEM
+   MP3 VOICE SYSTEM
 ========================================= */
 
 let voiceEnabled = true;
 let currentAudio = null;
 
-const voiceButton = document.getElementById("voiceButton");
+
+/*
+   Voice button
+*/
+
+const voiceButton =
+    document.getElementById("voiceButton");
 
 
 /*
-   Play one of YOUR uploaded MP3 files.
+   Play exact uploaded MP3
 */
 
 function playVoice(filename) {
 
     if (!voiceEnabled) return;
 
-    // Stop previous voice
-    if (currentAudio) {
-        currentAudio.pause();
-        currentAudio.currentTime = 0;
-    }
+    stopVoice();
 
-    currentAudio = new Audio("./" + filename);
+    currentAudio =
+        new Audio("./" + filename);
 
     currentAudio.volume = 1;
 
     currentAudio.play().catch(error => {
-        console.log("Audio could not play:", filename, error);
+
+        console.log(
+            "Audio playback error:",
+            filename,
+            error
+        );
+
     });
 }
 
 
 /*
-   Stop voice.
+   Stop current voice
 */
 
 function stopVoice() {
 
     if (currentAudio) {
+
         currentAudio.pause();
+
         currentAudio.currentTime = 0;
+
+        currentAudio = null;
+
     }
+
 }
 
 
 /*
-   Voice button
+   Voice ON/OFF
 */
 
 if (voiceButton) {
@@ -114,21 +129,27 @@ if (voiceButton) {
 
 
 /* =========================================
-   START SCREEN
+   START
 ========================================= */
 
-const startButton = document.getElementById("startButton");
+const startButton =
+    document.getElementById("startButton");
+
 
 if (startButton) {
 
     startButton.addEventListener("click", () => {
 
         /*
-           This click gives the browser permission
-           to play audio.
+           IMPORTANT:
+           This is the FIRST voice.
         */
 
         playVoice("welcome.mp3");
+
+        /*
+           Move to welcome screen.
+        */
 
         showScreen("welcomeScreen");
 
@@ -138,10 +159,14 @@ if (startButton) {
 
 
 /* =========================================
-   WELCOME SCREEN
+   WELCOME → QUIZ
 ========================================= */
 
 function goToGame() {
+
+    /*
+       Play quiz introduction.
+    */
 
     playVoice("quiz-intro.mp3");
 
@@ -151,7 +176,7 @@ function goToGame() {
 
 
 /* =========================================
-   QUIZ GAME
+   QUIZ - WRONG ANSWER
 ========================================= */
 
 function wrongAnswer(button) {
@@ -172,13 +197,12 @@ function wrongAnswer(button) {
 
     }
 
-    /*
-       No wrong-answer MP3 exists,
-       so don't create a fake browser voice.
-    */
-
 }
 
+
+/* =========================================
+   QUIZ - CORRECT ANSWER
+========================================= */
 
 function correctAnswer() {
 
@@ -188,11 +212,20 @@ function correctAnswer() {
     if (message) {
 
         message.textContent =
-            "Yayyyy! Bilkul sahi! 🎉👑❤️";
+            "Yayyyyy! Bilkul sahi! 🎉👑❤️";
 
     }
 
+    /*
+       EXACT uploaded voice.
+    */
+
     playVoice("quiz-correct.mp3");
+
+
+    /*
+       Give voice time before next screen.
+    */
 
     setTimeout(() => {
 
@@ -200,7 +233,7 @@ function correctAnswer() {
 
         startHeartGame();
 
-    }, 1800);
+    }, 2200);
 
 }
 
@@ -219,12 +252,14 @@ function startHeartGame() {
 
     heartGameStarted = true;
 
+
     const score =
         document.getElementById("heartScore");
 
     if (score) {
         score.textContent = "0";
     }
+
 
     const message =
         document.getElementById("heartMessage");
@@ -236,6 +271,7 @@ function startHeartGame() {
 
     }
 
+
     const area =
         document.getElementById("heartArea");
 
@@ -243,24 +279,28 @@ function startHeartGame() {
 
     area.innerHTML = "";
 
+
     /*
-       Play heart-game introduction.
+       Play heart game introduction.
     */
 
     playVoice("heart-game.mp3");
 
+
     /*
-       Wait a little so the introduction
-       can start before the first heart appears.
+       First heart appears shortly after
+       the introduction starts.
     */
 
     setTimeout(() => {
 
         if (heartGameStarted) {
+
             createHeart();
+
         }
 
-    }, 700);
+    }, 900);
 
 }
 
@@ -275,10 +315,12 @@ function createHeart() {
 
     if (heartScore >= 7) return;
 
+
     const area =
         document.getElementById("heartArea");
 
     if (!area) return;
+
 
     const heart =
         document.createElement("button");
@@ -287,11 +329,19 @@ function createHeart() {
 
     heart.innerHTML = "❤️";
 
+
     const maxX =
-        Math.max(20, area.clientWidth - 65);
+        Math.max(
+            20,
+            area.clientWidth - 65
+        );
 
     const maxY =
-        Math.max(20, area.clientHeight - 65);
+        Math.max(
+            20,
+            area.clientHeight - 65
+        );
+
 
     heart.style.left =
         Math.random() * maxX + "px";
@@ -304,25 +354,44 @@ function createHeart() {
 
         if (!heartGameStarted) return;
 
+
         heartScore++;
+
 
         const score =
             document.getElementById("heartScore");
 
         if (score) {
-            score.textContent = heartScore;
+
+            score.textContent =
+                heartScore;
+
         }
+
 
         heart.remove();
 
 
+        /* =================================
+           HEART CAUGHT
+        ================================= */
+
         /*
-           Final heart
+           Your short heart-caught.mp3
+           plays every time a heart is caught.
         */
+
+        playVoice("heart-caught.mp3");
+
+
+        /* =================================
+           7 HEARTS COMPLETE
+        ================================= */
 
         if (heartScore >= 7) {
 
             heartGameStarted = false;
+
 
             const message =
                 document.getElementById("heartMessage");
@@ -334,39 +403,47 @@ function createHeart() {
 
             }
 
-            playVoice("heart-caught.mp3");
 
+            /*
+               Let heart-caught finish first.
+            */
 
             setTimeout(() => {
 
                 showScreen("memoryScreen");
+
 
                 /*
                    Memory Garden voice
                 */
 
                 setTimeout(() => {
+
                     playVoice("memories.mp3");
-                }, 400);
+
+                }, 500);
+
 
             }, 2200);
+
 
         }
 
         else {
 
             /*
-               There is no separate voice for every heart.
-               We simply create the next heart.
+               Create next heart.
             */
 
             setTimeout(() => {
 
                 if (heartGameStarted) {
+
                     createHeart();
+
                 }
 
-            }, 350);
+            }, 700);
 
         }
 
@@ -379,7 +456,7 @@ function createHeart() {
 
 
 /* =========================================
-   MEMORY GARDEN
+   MEMORY → MESSAGE
 ========================================= */
 
 function goToMessage() {
@@ -388,9 +465,9 @@ function goToMessage() {
 
     showScreen("messageScreen");
 
+
     /*
-       Give the screen a moment to appear,
-       then play YOUR message.mp3.
+       Play exact message.mp3
     */
 
     setTimeout(() => {
@@ -407,21 +484,27 @@ function goToMessage() {
 ========================================= */
 
 const messageVoiceButton =
-    document.getElementById("messageVoiceButton");
+    document.getElementById(
+        "messageVoiceButton"
+    );
+
 
 if (messageVoiceButton) {
 
-    messageVoiceButton.addEventListener("click", () => {
+    messageVoiceButton.addEventListener(
+        "click",
+        () => {
 
-        playVoice("message.mp3");
+            playVoice("message.mp3");
 
-    });
+        }
+    );
 
 }
 
 
 /* =========================================
-   GIFT SCREEN
+   MESSAGE → GIFT
 ========================================= */
 
 function goToGift() {
@@ -429,6 +512,11 @@ function goToGift() {
     stopVoice();
 
     showScreen("giftScreen");
+
+
+    /*
+       Play secret gift introduction.
+    */
 
     setTimeout(() => {
 
@@ -450,11 +538,22 @@ function openGift() {
 
     if (!gift) return;
 
-    if (gift.classList.contains("opened")) {
+
+    /*
+       Prevent opening twice.
+    */
+
+    if (
+        gift.classList.contains("opened")
+    ) {
+
         return;
+
     }
 
+
     gift.classList.add("opened");
+
 
     const hint =
         document.getElementById("giftHint");
@@ -466,16 +565,24 @@ function openGift() {
 
     }
 
-    /*
-       Gift voice has already played
-       when entering this page.
 
-       Stop it before final voice.
+    /*
+       Stop gift introduction.
     */
 
     stopVoice();
 
+
+    /*
+       Confetti.
+    */
+
     createConfetti();
+
+
+    /*
+       Show final page.
+    */
 
     setTimeout(() => {
 
@@ -483,15 +590,17 @@ function openGift() {
 
         createConfetti();
 
+
         /*
-           Final exact MP3
+           Final exact MP3.
         */
 
         setTimeout(() => {
 
             playVoice("final.mp3");
 
-        }, 500);
+        }, 600);
+
 
     }, 1800);
 
@@ -505,9 +614,12 @@ function openGift() {
 function createConfetti() {
 
     const container =
-        document.getElementById("confettiContainer");
+        document.getElementById(
+            "confettiContainer"
+        );
 
     if (!container) return;
+
 
     const emojis = [
         "🎉",
@@ -522,30 +634,42 @@ function createConfetti() {
         "🎊"
     ];
 
+
     for (let i = 0; i < 70; i++) {
 
         const piece =
             document.createElement("span");
 
-        piece.className = "confetti";
+        piece.className =
+            "confetti";
+
 
         piece.textContent =
             emojis[
                 Math.floor(
-                    Math.random() * emojis.length
+                    Math.random() *
+                    emojis.length
                 )
             ];
+
 
         piece.style.left =
             Math.random() * 100 + "%";
 
+
         piece.style.animationDuration =
-            (2.5 + Math.random() * 3) + "s";
+            (2.5 +
+            Math.random() * 3) +
+            "s";
+
 
         piece.style.animationDelay =
-            Math.random() * 1.5 + "s";
+            Math.random() * 1.5 +
+            "s";
+
 
         container.appendChild(piece);
+
 
         setTimeout(() => {
 
@@ -559,53 +683,70 @@ function createConfetti() {
 
 
 /* =========================================
-   PHOTO CLICK
+   PHOTO CLICK ANIMATION
 ========================================= */
 
-document.addEventListener("click", event => {
+document.addEventListener(
+    "click",
+    event => {
 
-    const card =
-        event.target.closest(".photo-card");
+        const card =
+            event.target.closest(
+                ".photo-card"
+            );
 
-    if (!card) return;
+        if (!card) return;
 
-    card.animate(
-        [
+
+        card.animate(
+            [
+                {
+                    transform:
+                        "scale(1)"
+                },
+
+                {
+                    transform:
+                        "scale(1.12) rotate(0deg)"
+                },
+
+                {
+                    transform:
+                        "scale(1)"
+                }
+            ],
             {
-                transform: "scale(1)"
-            },
-            {
-                transform: "scale(1.12) rotate(0deg)"
-            },
-            {
-                transform: "scale(1)"
+                duration: 500
             }
-        ],
-        {
-            duration: 500
-        }
-    );
+        );
 
-});
+    }
+);
 
 
 /* =========================================
-   PREVENT ACCIDENTAL DOUBLE TAP ZOOM
+   PREVENT DOUBLE TAP ZOOM
 ========================================= */
 
 let lastTouchEnd = 0;
+
 
 document.addEventListener(
     "touchend",
     event => {
 
-        const now = Date.now();
+        const now =
+            Date.now();
 
-        if (now - lastTouchEnd <= 300) {
+
+        if (
+            now - lastTouchEnd <= 300
+        ) {
 
             event.preventDefault();
 
         }
+
 
         lastTouchEnd = now;
 
