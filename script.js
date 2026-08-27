@@ -1,12 +1,12 @@
 /* =========================================
-   AADI RAKSHA BANDHAN
-   FINAL VERSION 20
-   REAL MP3 + COMPLETE FLOW
+   AADI RAKSHA BANDHAN WEBSITE
+   VERSION 30
+   REAL MP3 AUDIO
 ========================================= */
 
 
 /* =========================================
-   SCREENS
+   SCREEN LIST
 ========================================= */
 
 const screens = [
@@ -22,193 +22,141 @@ const screens = [
 
 
 /* =========================================
-   SHOW SCREEN
+   AUDIO
 ========================================= */
 
-function showScreen(id) {
+const voicePlayer =
+    document.getElementById("voicePlayer");
 
-    screens.forEach(screenId => {
-
-        const screen =
-            document.getElementById(screenId);
-
-        if (screen) {
-            screen.classList.add("hidden");
-        }
-
-    });
-
-
-    const selected =
-        document.getElementById(id);
-
-    if (!selected) {
-        console.error("Screen not found:", id);
-        return;
-    }
-
-
-    selected.classList.remove("hidden");
-
-
-    window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-    });
-
-}
-
-
-/* =========================================
-   AUDIO SYSTEM
-========================================= */
+const voiceButton =
+    document.getElementById("voiceButton");
 
 let voiceEnabled = true;
 
-let currentAudio = null;
-
-
-/*
-   Version number prevents cached audio/JS
-   from causing old files to load.
-*/
-
-const AUDIO_VERSION = "20";
-
-
-/*
-   Create the exact GitHub audio URL.
-*/
-
-function audioPath(filename) {
-
-    return "./" +
-        filename +
-        "?v=" +
-        AUDIO_VERSION;
-
-}
+let currentFile = "";
 
 
 /* =========================================
    STOP AUDIO
 ========================================= */
 
-function stopAudio() {
+function stopVoice() {
 
-    if (!currentAudio) {
+    if (!voicePlayer) {
         return;
     }
 
-
-    currentAudio.pause();
+    voicePlayer.pause();
 
     try {
-        currentAudio.currentTime = 0;
+        voicePlayer.currentTime = 0;
     } catch (error) {
         console.log(error);
     }
 
-
-    currentAudio = null;
-
+    currentFile = "";
 }
 
 
 /* =========================================
-   PLAY AUDIO
-   RETURNS THE AUDIO OBJECT
+   PLAY MP3
 ========================================= */
 
 function playVoice(filename) {
 
     if (!voiceEnabled) {
-        return null;
+        return Promise.resolve(false);
+    }
+
+    if (!voicePlayer) {
+        return Promise.resolve(false);
     }
 
 
-    stopAudio();
+    stopVoice();
 
 
-    const audio =
-        new Audio(audioPath(filename));
+    currentFile = filename;
+
+    voicePlayer.src = "./" + filename;
+
+    voicePlayer.preload = "auto";
+
+    voicePlayer.volume = 1;
 
 
-    audio.preload = "auto";
-
-    audio.volume = 1;
-
-
-    currentAudio = audio;
+    const playPromise =
+        voicePlayer.play();
 
 
-    audio.addEventListener(
-        "error",
-        () => {
+    if (playPromise) {
 
-            console.error(
-                "Could not load audio:",
-                filename
-            );
+        return playPromise
+            .then(() => {
 
-        },
-        { once: true }
-    );
+                console.log(
+                    "Playing:",
+                    filename
+                );
 
+                return true;
 
-    const promise =
-        audio.play();
+            })
+            .catch(error => {
 
+                console.error(
+                    "Audio playback failed:",
+                    filename,
+                    error
+                );
 
-    if (promise) {
+                return false;
 
-        promise.catch(error => {
-
-            console.error(
-                "Could not play:",
-                filename,
-                error
-            );
-
-        });
+            });
 
     }
 
-
-    return audio;
-
+    return Promise.resolve(true);
 }
 
 
 /* =========================================
-   PLAY AUDIO AND WAIT UNTIL FINISHED
+   PLAY MP3 AND WAIT FOR IT TO FINISH
 ========================================= */
 
 function playVoiceAndWait(
     filename,
-    onFinished
+    onFinish
 ) {
 
     if (!voiceEnabled) {
 
-        onFinished();
+        onFinish();
 
         return;
 
     }
 
 
-    const audio =
-        playVoice(filename);
+    if (!voicePlayer) {
 
-
-    if (!audio) {
-
-        onFinished();
+        onFinish();
 
         return;
 
     }
+
+
+    stopVoice();
+
+
+    currentFile = filename;
+
+    voicePlayer.src = "./" + filename;
+
+    voicePlayer.preload = "auto";
+
+    voicePlayer.volume = 1;
 
 
     let finished = false;
@@ -223,41 +171,73 @@ function playVoiceAndWait(
         finished = true;
 
 
-        if (currentAudio === audio) {
-            currentAudio = null;
-        }
+        voicePlayer.removeEventListener(
+            "ended",
+            finish
+        );
 
 
-        onFinished();
+        voicePlayer.removeEventListener(
+            "error",
+            finish
+        );
+
+
+        currentFile = "";
+
+
+        onFinish();
 
     }
 
 
-    audio.addEventListener(
+    voicePlayer.addEventListener(
         "ended",
-        finish,
-        { once: true }
+        finish
     );
 
 
-    audio.addEventListener(
+    voicePlayer.addEventListener(
         "error",
-        finish,
-        { once: true }
+        finish
     );
+
+
+    voicePlayer.play()
+        .then(() => {
+
+            console.log(
+                "Playing:",
+                filename
+            );
+
+        })
+        .catch(error => {
+
+            console.error(
+                "Could not play:",
+                filename,
+                error
+            );
+
+            /*
+               IMPORTANT:
+               Do NOT automatically change
+               the screen on play failure.
+
+               This prevents the old problem
+               where Page 2 appeared while the
+               Page 1 voice was still being heard.
+            */
+
+        });
 
 }
 
 
 /* =========================================
-   VOICE BUTTON
+   VOICE ON/OFF
 ========================================= */
-
-const voiceButton =
-    document.getElementById(
-        "voiceButton"
-    );
-
 
 if (voiceButton) {
 
@@ -277,7 +257,7 @@ if (voiceButton) {
 
             if (!voiceEnabled) {
 
-                stopAudio();
+                stopVoice();
 
             }
 
@@ -304,11 +284,14 @@ if (startButton) {
         () => {
 
             /*
-               PAGE 1 STAYS VISIBLE.
+               IMPORTANT:
 
-               The next page is NOT opened here.
+               Page 1 stays visible.
 
-               welcome.mp3 plays first.
+               welcome.mp3 starts here.
+
+               Page 2 appears ONLY after
+               welcome.mp3 actually ends.
             */
 
             if (!voiceEnabled) {
@@ -322,38 +305,71 @@ if (startButton) {
             }
 
 
-            stopAudio();
+            stopVoice();
 
 
-            const audio =
-                new Audio(
-                    audioPath(
-                        "welcome.mp3"
-                    )
+            if (!voicePlayer) {
+
+                showScreen(
+                    "welcomeScreen"
                 );
 
+                return;
 
-            currentAudio = audio;
+            }
 
-            audio.preload = "auto";
+
+            const audio = voicePlayer;
+
+
+            audio.src =
+                "./welcome.mp3";
+
+
+            audio.preload =
+                "auto";
+
 
             audio.volume = 1;
 
 
-            let moved = false;
+            currentFile =
+                "welcome.mp3";
 
 
-            function moveToWelcome() {
+            let moved =
+                false;
+
+
+            function moveToNextPage() {
 
                 if (moved) {
                     return;
                 }
 
+
                 moved = true;
 
 
-                if (currentAudio === audio) {
-                    currentAudio = null;
+                audio.removeEventListener(
+                    "ended",
+                    moveToNextPage
+                );
+
+
+                audio.removeEventListener(
+                    "error",
+                    audioError
+                );
+
+
+                if (
+                    currentFile ===
+                    "welcome.mp3"
+                ) {
+
+                    currentFile = "";
+
                 }
 
 
@@ -364,57 +380,111 @@ if (startButton) {
             }
 
 
-            /*
-               ONLY AFTER welcome.mp3 FINISHES
-               will Page 2 appear.
-            */
+            function audioError() {
+
+                /*
+                   DO NOT change the screen.
+
+                   Keep Page 1 visible.
+
+                   This is better than switching
+                   pages while audio is unresolved.
+                */
+
+                console.error(
+                    "welcome.mp3 could not be loaded."
+                );
+
+            }
+
 
             audio.addEventListener(
                 "ended",
-                moveToWelcome,
+                moveToNextPage,
                 { once: true }
             );
 
-
-            /*
-               If the file genuinely cannot play,
-               continue rather than getting stuck.
-            */
 
             audio.addEventListener(
                 "error",
-                () => {
-
-                    console.error(
-                        "welcome.mp3 failed to load"
-                    );
-
-                    moveToWelcome();
-
-                },
+                audioError,
                 { once: true }
             );
 
 
-            audio.play().catch(error => {
+            audio.play()
+                .then(() => {
 
-                console.error(
-                    "welcome.mp3 playback failed:",
-                    error
-                );
+                    console.log(
+                        "welcome.mp3 playing"
+                    );
 
-                /*
-                   Only use this fallback
-                   when the browser actually
-                   refuses the audio.
-                */
+                })
+                .catch(error => {
 
-                moveToWelcome();
+                    console.error(
+                        "welcome.mp3 playback blocked:",
+                        error
+                    );
 
-            });
+                });
 
         }
     );
+
+}
+
+
+/* =========================================
+   SHOW SCREEN
+========================================= */
+
+function showScreen(id) {
+
+    screens.forEach(screenId => {
+
+        const screen =
+            document.getElementById(
+                screenId
+            );
+
+
+        if (screen) {
+
+            screen.classList.add(
+                "hidden"
+            );
+
+        }
+
+    });
+
+
+    const selected =
+        document.getElementById(id);
+
+
+    if (!selected) {
+
+        console.error(
+            "Screen not found:",
+            id
+        );
+
+        return;
+
+    }
+
+
+    selected.classList.remove(
+        "hidden"
+    );
+
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
 
 }
 
@@ -425,18 +495,12 @@ if (startButton) {
 
 function goToGame() {
 
-    stopAudio();
-
+    stopVoice();
 
     showScreen(
         "gameScreen"
     );
 
-
-    /*
-       This happens after the user
-       presses the button.
-    */
 
     setTimeout(() => {
 
@@ -444,13 +508,13 @@ function goToGame() {
             "quiz-intro.mp3"
         );
 
-    }, 150);
+    }, 250);
 
 }
 
 
 /* =========================================
-   WRONG ANSWER
+   WRONG QUIZ ANSWER
 ========================================= */
 
 function wrongAnswer(button) {
@@ -490,20 +554,20 @@ function wrongAnswer(button) {
 
 
 /* =========================================
-   CORRECT ANSWER
+   CORRECT QUIZ ANSWER
 ========================================= */
 
-let quizCompleted = false;
+let quizDone = false;
 
 
 function correctAnswer() {
 
-    if (quizCompleted) {
+    if (quizDone) {
         return;
     }
 
 
-    quizCompleted = true;
+    quizDone = true;
 
 
     const message =
@@ -519,10 +583,6 @@ function correctAnswer() {
 
     }
 
-
-    /*
-       Wait for the REAL MP3 to finish.
-    */
 
     playVoiceAndWait(
         "quiz-correct.mp3",
@@ -542,19 +602,15 @@ function correctAnswer() {
 
 
 /* =========================================
-   HEART GAME VARIABLES
+   HEART GAME
 ========================================= */
 
 let heartScore = 0;
 
 let heartGameStarted = false;
 
-let heartTransitioning = false;
+let heartFinishing = false;
 
-
-/* =========================================
-   START HEART GAME
-========================================= */
 
 function startHeartGame() {
 
@@ -562,7 +618,7 @@ function startHeartGame() {
 
     heartGameStarted = true;
 
-    heartTransitioning = false;
+    heartFinishing = false;
 
 
     const score =
@@ -605,13 +661,6 @@ function startHeartGame() {
 
     area.innerHTML = "";
 
-
-    /*
-       Play heart-game.mp3.
-
-       Hearts appear only after the
-       introduction finishes.
-    */
 
     playVoiceAndWait(
         "heart-game.mp3",
@@ -724,7 +773,7 @@ function createHeart() {
             }
 
 
-            if (heartTransitioning) {
+            if (heartFinishing) {
                 return;
             }
 
@@ -750,7 +799,7 @@ function createHeart() {
 
 
             /*
-               Play heart-caught.mp3.
+               Play short heart voice.
             */
 
             playVoiceAndWait(
@@ -758,12 +807,14 @@ function createHeart() {
                 () => {
 
                     /*
-                       All 7 hearts caught.
+                       Last heart.
                     */
 
-                    if (heartScore >= 7) {
+                    if (
+                        heartScore >= 7
+                    ) {
 
-                        heartTransitioning =
+                        heartFinishing =
                             true;
 
                         heartGameStarted =
@@ -785,7 +836,7 @@ function createHeart() {
 
 
                         /*
-                           Go to Memory Garden.
+                           Open Memory Garden.
                         */
 
                         showScreen(
@@ -794,23 +845,17 @@ function createHeart() {
 
 
                         /*
-                           Photos are now visible.
-                           Play memories.mp3.
+                           Photos are visible.
+
+                           Now play memories.mp3.
+
+                           When it FINISHES, move
+                           automatically to Message.
                         */
 
                         playVoiceAndWait(
                             "memories.mp3",
                             () => {
-
-                                /*
-                                   THIS FIXES THE
-                                   MEMORY GARDEN GETTING
-                                   STUCK.
-
-                                   After memories.mp3,
-                                   automatically go
-                                   to the message page.
-                                */
 
                                 goToMessage();
 
@@ -821,17 +866,7 @@ function createHeart() {
 
                     else {
 
-                        /*
-                           Next heart.
-                        */
-
-                        if (
-                            heartGameStarted
-                        ) {
-
-                            createHeart();
-
-                        }
+                        createHeart();
 
                     }
 
@@ -853,20 +888,9 @@ function createHeart() {
    MEMORY → MESSAGE
 ========================================= */
 
-let messageStarted = false;
-
-
 function goToMessage() {
 
-    if (messageStarted) {
-        return;
-    }
-
-
-    messageStarted = true;
-
-
-    stopAudio();
+    stopVoice();
 
 
     showScreen(
@@ -874,17 +898,13 @@ function goToMessage() {
     );
 
 
-    /*
-       Play exact message.mp3
-    */
-
     setTimeout(() => {
 
         playVoice(
             "message.mp3"
         );
 
-    }, 200);
+    }, 250);
 
 }
 
@@ -919,15 +939,9 @@ if (messageVoiceButton) {
    MESSAGE → GIFT
 ========================================= */
 
-let giftPageStarted = false;
-
-
 function goToGift() {
 
-    giftPageStarted = false;
-
-
-    stopAudio();
+    stopVoice();
 
 
     showScreen(
@@ -935,18 +949,13 @@ function goToGift() {
     );
 
 
-    /*
-       Play gift.mp3 once when
-       the gift page appears.
-    */
-
     setTimeout(() => {
 
         playVoice(
             "gift.mp3"
         );
 
-    }, 200);
+    }, 250);
 
 }
 
@@ -955,17 +964,17 @@ function goToGift() {
    OPEN GIFT
 ========================================= */
 
-let giftOpened = false;
+let giftAlreadyOpened = false;
 
 
 function openGift() {
 
-    if (giftOpened) {
+    if (giftAlreadyOpened) {
         return;
     }
 
 
-    giftOpened = true;
+    giftAlreadyOpened = true;
 
 
     const gift =
@@ -998,15 +1007,11 @@ function openGift() {
     }
 
 
-    stopAudio();
+    stopVoice();
 
 
     createConfetti();
 
-
-    /*
-       Go to final screen.
-    */
 
     setTimeout(() => {
 
@@ -1032,7 +1037,7 @@ function openGift() {
 
 
 /* =========================================
-   GIFT KEYBOARD SUPPORT
+   GIFT KEYBOARD
 ========================================= */
 
 function handleGiftKey(event) {
@@ -1166,8 +1171,7 @@ document.addEventListener(
         card.animate(
             [
                 {
-                    transform:
-                        "scale(1)"
+                    transform: "scale(1)"
                 },
 
                 {
@@ -1176,8 +1180,7 @@ document.addEventListener(
                 },
 
                 {
-                    transform:
-                        "scale(1)"
+                    transform: "scale(1)"
                 }
 
             ],
@@ -1187,21 +1190,4 @@ document.addEventListener(
         );
 
     }
-);
-
-
-/* =========================================
-   PAGE LOAD DEBUG
-========================================= */
-
-console.log(
-    "Aadi website version 20 loaded"
-);
-
-console.log(
-    "Real MP3 voice system active"
-);
-
-console.log(
-    "Automatic Memory → Message flow active"
 );
