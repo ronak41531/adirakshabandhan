@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Happy Raksha Bandhan Aadi ❤️</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Pacifico&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+<!-- =========================================
+     FLOATING DECORATIONS
+========================================= -->
+
+<div class="floating-decorations">
+    <span>🌸</span>
+    <span>🦋</span>
+    <span>💖</span>
+    <span>✨</span>
+    <span>🌈</span>
+    <span>🎀</span>
+    <span>⭐</span>
+    <span>🧸</span>
+</div>
+
+
+<!-- =========================================
+     VOICE CONTROL
+========================================= -->
+
+<button id="voiceButton" class="voice-button" aria-label="Toggle voice">
+    🔊
+</button>
+
+
+<!-- =========================================
+     START SCREEN
+========================================= -->
+
+<section id="startScreen" class="screen start-screen">
+
+    <div class="cloud cloud1"></div>
+    <div class="cloud cloud2"></div>
+
+    <div class="start-content">
+
+        <div class="crown">👑</div>
+
+        <p class="tiny-heading">
+            A SPECIAL SURPRISE FOR
+        </p>
+
+        <h1>
+            Aadi 💖
+        </h1>
+
+        <div class="rainbow-line">
+            🌈 ✨ 🌸 ✨ 🌈
+        </div>
+
+        <p class="start-message">
+            Hello meri chhoti si princess! 🥰
+        </p>
+
+        <p class="start-submessage">
+            Tumhare liye ek magical Raksha Bandhan surprise hai...
+        </p>
+
+        <button id="startButton" class="magic-button">
+            ✨ Tap To Start ✨
+        </button>
+
+        <div class="little-stars">
+            ⭐ ⭐ ⭐
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================
+     WELCOME SCREEN
+========================================= -->
+
+<section id="welcomeScreen" class="screen hidden">
+
+    <div class="page-container">
+
+        <div class="character">
+            👧🏻
+        </div>
+
+        <h2 class="section-title">
+            Hello Aadi! 🌸
+        </h2>
+
+        <div class="cute-card">
+
+            <div class="card-icon">
+                🎀
+            </div>
+
+            <h3>
+                Meri Pyaari Chhoti Behen
+            </h3>
+
+            <p>
+                Tum sirf 4 saal ki ho...
+                lekin mere liye tumhari smile poori duniya jitni special hai! 💕
+            </p>
+
+            <div class="emoji-row">
+                🦋 🌸 🧸 🌈 🎀
+            </div>
+
+        </div>
+
+        <button class="next-button" onclick="goToGame()">
+            Chalo Aage! 🚀
+        </button>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================
+     GAME 1
+========================================= -->
+
+<section id="gameScreen" class="screen hidden">
+
+    <div class="page-container">
+
+        <div class="game-header">
+            <span>🎮</span>
+            <h2>Little Princess Quiz 👑</h2>
+            <span>🎮</span>
+        </div>
+
+        <p class="game-question">
+            Aadi kiski sabse pyaari princess hai? 🥰
+        </p>
+
+        <div class="answer-buttons">
+
+            <button class="answer-button wrong" onclick="wrongAnswer(this)">
+                🐱 Billi ki
+            </button>
+
+            <button class="answer-button correct" onclick="correctAnswer()">
+                ❤️ Bhaiya ki
+            </button>
+
+            <button class="answer-button wrong" onclick="wrongAnswer(this)">
+                🐰 Bunny ki
+            </button>
+
+        </div>
+
+        <p id="gameMessage" class="game-message"></p>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================
+     HEART GAME
+========================================= -->
+
+<section id="heartGameScreen" class="screen hidden">
+
+    <div class="page-container">
+
+        <h2 class="section-title">
+            Catch The Hearts ❤️
+        </h2>
+
+        <p class="instruction">
+            Aadi, jitne hearts pakad sakti ho pakdo! 🥰
+        </p>
+
+        <div class="score-box">
+            ❤️ Hearts: <span id="heartScore">0</span>/7
+        </div>
+
+        <div id="heartArea" class="heart-area">
+        </div>
+
+        <p id="heartMessage" class="game-message">
+            Tap the hearts! 👆❤️
+        </p>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================
+     MEMORY GARDEN
+========================================= -->
+
+<section id="memoryScreen" class="screen hidden">
+
+    <div class="page-container">
+
+        <div class="garden-title">
+            🌸 Aadi's Memory Garden 🌸
+        </div>
+
+        <p class="instruction">
+            Hamari cute-cute memories! 📸💕
+        </p>
+
+        <div class="photo-grid">
+
+            <div class="photo-card">
+                <img src="photos/photo1.jpg" alt="Aadi memory 1"
+                     onerror="this.src='https://placehold.co/500x500/ffd6e7/ffffff?text=Aadi+❤️'">
+                <span>🥰 Cute Aadi</span>
+            </div>
+
+            <div class="photo-card">
+                <img src="photos/photo2.jpg" alt="Aadi memory 2"
+                     onerror="this.src='https://placehold.co/500x500/e5d4ff/ffffff?text=Sweet+Aadi'">
+                <span>🌸 Sweet Smile</span>
+            </div>
+
+            <div class="photo-card">
+                <img src="photos/photo3.jpg" alt="Aadi memory 3"
+                     onerror="this.src='https://placehold.co/500x500/d5f4ff/ffffff?text=Little+Princess'">
+                <span>👑 Little Princess</span>
+            </div>
+
+            <div class="photo-card">
+                <img src="photos/photo4.jpg" alt="Aadi memory 4"
+                     onerror="this.src='https://placehold.co/500x500/fff0c7/ffffff?text=Happy+Aadi'">
+                <span>✨ Happy Aadi</span>
+            </div>
+
+            <div class="photo-card">
+                <img src="photos/photo5.jpg" alt="Aadi memory 5"
+                     onerror="this.src='https://placehold.co/500x500/dfffd8/ffffff?text=My+Cutie'">
+                <span>🧸 My Cutie</span>
+            </div>
+
+            <div class="photo-card">
+                <img src="photos/photo6.jpg" alt="Aadi memory 6"
+                     onerror="this.src='https://placehold.co/500x500/ffd8f1/ffffff?text=Beautiful+Memory'">
+                <span>💖 Beautiful Memory</span>
+            </div>
+
+            <div class="photo-card">
+                <img src="photos/photo7.jpg" alt="Aadi memory 7"
+                     onerror="this.src='https://placehold.co/500x500/d7f8ff/ffffff?text=Best+Smile'">
+                <span>🌈 Best Smile</span>
+            </div>
+
+            <div class="photo-card">
+                <img src="photos/photo8.jpg" alt="Aadi memory 8"
+                     onerror="this.src='https://placehold.co/500x500/ffe0e8/ffffff?text=Little+Star'">
+                <span>⭐ Little Star</span>
+            </div>
+
+            <div class="photo-card">
+                <img src="photos/photo9.jpg" alt="Aadi memory 9"
+                     onerror="this.src='https://placehold.co/500x500/e9dcff/ffffff?text=Sweet+Memory'">
+                <span>🦋 Sweet Memory</span>
+            </div>
+
+            <div class="photo-card">
+                <img src="photos/photo10.jpg" alt="Aadi memory 10"
+                     onerror="this.src='https://placehold.co/500x500/fff2d5/ffffff?text=Forever+❤️'">
+                <span>❤️ Forever Special</span>
+            </div>
+
+        </div>
+
+        <button class="next-button" onclick="goToMessage()">
+            Aadi Ke Liye Message 💌
+        </button>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================
+     MESSAGE SCREEN
+========================================= -->
+
+<section id="messageScreen" class="screen hidden">
+
+    <div class="page-container">
+
+        <div class="message-character">
+            🧒🏻💖👧🏻
+        </div>
+
+        <h2 class="section-title">
+            Ek Chhota Sa Message 💌
+        </h2>
+
+        <div class="letter">
+
+            <div class="letter-top">
+                💖 For My Little Aadi 💖
+            </div>
+
+            <p>
+                Meri pyaari Aadi,
+            </p>
+
+            <p>
+                Tum abhi bahut chhoti ho,
+                sirf 4 saal ki...
+                lekin tumhari ek chhoti si smile
+                sabka mood achha kar deti hai. 🥰
+            </p>
+
+            <p>
+                Tumhari masti, tumhari cute si baatein
+                aur tumhari shararatein hamesha yaad rahengi. 🧸
+            </p>
+
+            <p>
+                Main hamesha tumhare saath rahunga,
+                tumhe protect karunga,
+                tumhare saath masti karunga
+                aur tumhe bahut saara pyaar karunga. ❤️
+            </p>
+
+            <p class="big-love">
+                Love you meri chhoti princess! 👑💕
+            </p>
+
+            <p class="rakhi-text">
+                Happy Raksha Bandhan Aadi! 🪢❤️
+            </p>
+
+        </div>
+
+        <button id="messageVoiceButton" class="voice-message-button">
+            🔊 Message Suno
+        </button>
+
+        <button class="next-button" onclick="goToGift()">
+            Ab Ek Surprise Hai... 🎁
+        </button>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================
+     GIFT SCREEN
+========================================= -->
+
+<section id="giftScreen" class="screen hidden">
+
+    <div class="page-container gift-page">
+
+        <h2 class="section-title">
+            Aadi Ke Liye Surprise 🎁
+        </h2>
+
+        <p class="instruction">
+            Gift box ko tap karo! 👆
+        </p>
+
+        <div id="giftBox" class="gift-box" onclick="openGift()">
+
+            <div class="gift-lid">
+                🎀
+            </div>
+
+            <div class="gift-body">
+                🎁
+            </div>
+
+        </div>
+
+        <p id="giftHint">
+            Tap me! Tap me! 🥺🎁
+        </p>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================
+     FINAL SCREEN
+========================================= -->
+
+<section id="finalScreen" class="screen hidden">
+
+    <div id="confettiContainer"></div>
+
+    <div class="final-content">
+
+        <div class="final-crown">
+            👑
+        </div>
+
+        <div class="final-rakhi">
+            🪢
+        </div>
+
+        <h1>
+            Happy Raksha Bandhan
+        </h1>
+
+        <h2>
+            Aadi ❤️
+        </h2>
+
+        <div class="final-message">
+
+            <p>
+                Meri chhoti si princess,
+            </p>
+
+            <p>
+                tum hamesha aise hi
+                cute, happy aur naughty rehna! 🥰
+            </p>
+
+            <p>
+                Tumhari smile hamesha
+                sabse beautiful rahe. 🌸
+            </p>
+
+            <strong>
+                I LOVE YOU AADI! ❤️
+            </strong>
+
+        </div>
+
+        <div class="final-emojis">
+            🌸 🦋 🎀 🧸 🌈 👑 💖 ✨
+        </div>
+
+        <p class="forever">
+            Always my little princess 👑💕
+        </p>
+
+    </div>
+
+</section>
+
+
+<script src="script.js"></script>
+
+</body>
+</html>
