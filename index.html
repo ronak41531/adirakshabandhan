@@ -11,10 +11,17 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Pacifico&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Pacifico&display=swap"
+        rel="stylesheet"
+    >
 </head>
 
 <body>
+
+<!-- =========================================
+     FLOATING DECORATIONS
+========================================= -->
 
 <div class="floating-decorations">
     <span>🌸</span>
@@ -28,14 +35,23 @@
 </div>
 
 
-<!-- VOICE CONTROL -->
+<!-- =========================================
+     VOICE CONTROL
+========================================= -->
 
-<button id="voiceButton" class="voice-button" aria-label="Toggle voice">
+<button
+    id="voiceButton"
+    class="voice-button"
+    aria-label="Turn voice on or off"
+    type="button"
+>
     🔊
 </button>
 
 
-<!-- START -->
+<!-- =========================================
+     START SCREEN
+========================================= -->
 
 <section id="startScreen" class="screen start-screen">
 
@@ -66,7 +82,11 @@
             Tumhare liye ek magical Raksha Bandhan surprise hai...
         </p>
 
-        <button id="startButton" class="magic-button">
+        <button
+            id="startButton"
+            class="magic-button"
+            type="button"
+        >
             ✨ Tap To Start ✨
         </button>
 
@@ -79,7 +99,9 @@
 </section>
 
 
-<!-- WELCOME -->
+<!-- =========================================
+     WELCOME SCREEN
+========================================= -->
 
 <section id="welcomeScreen" class="screen hidden">
 
@@ -114,7 +136,11 @@
 
         </div>
 
-        <button class="next-button" onclick="goToGame()">
+        <button
+            class="next-button"
+            type="button"
+            onclick="goToGame()"
+        >
             Chalo Aage! 🚀
         </button>
 
@@ -123,7 +149,9 @@
 </section>
 
 
-<!-- QUIZ -->
+<!-- =========================================
+     QUIZ SCREEN
+========================================= -->
 
 <section id="gameScreen" class="screen hidden">
 
@@ -141,28 +169,46 @@
 
         <div class="answer-buttons">
 
-            <button class="answer-button wrong" onclick="wrongAnswer(this)">
+            <button
+                class="answer-button wrong"
+                type="button"
+                onclick="wrongAnswer(this)"
+            >
                 🐱 Billi ki
             </button>
 
-            <button class="answer-button correct" onclick="correctAnswer()">
+            <button
+                class="answer-button correct"
+                type="button"
+                onclick="correctAnswer()"
+            >
                 ❤️ Bhaiya ki
             </button>
 
-            <button class="answer-button wrong" onclick="wrongAnswer(this)">
+            <button
+                class="answer-button wrong"
+                type="button"
+                onclick="wrongAnswer(this)"
+            >
                 🐰 Bunny ki
             </button>
 
         </div>
 
-        <p id="gameMessage" class="game-message"></p>
+        <p
+            id="gameMessage"
+            class="game-message"
+            aria-live="polite"
+        ></p>
 
     </div>
 
 </section>
 
 
-<!-- HEART GAME -->
+<!-- =========================================
+     HEART GAME
+========================================= -->
 
 <section id="heartGameScreen" class="screen hidden">
 
@@ -177,12 +223,16 @@
         </p>
 
         <div class="score-box">
-            ❤️ Hearts: <span id="heartScore">0</span>/7
+            ❤️ Hearts:
+            <span id="heartScore">0</span>/7
         </div>
 
         <div id="heartArea" class="heart-area"></div>
 
-        <p id="heartMessage" class="game-message">
+        <p
+            id="heartMessage"
+            class="game-message"
+        >
             Tap the hearts! 👆❤️
         </p>
 
@@ -191,64 +241,122 @@
 </section>
 
 
-<!-- MEMORY GARDEN -->
+<!-- =========================================
+     MEMORY GARDEN
+========================================= -->
 
-<div class="photo-grid">
+<section id="memoryScreen" class="screen hidden">
 
-    <div class="photo-card">
-        <img src="./photo1.jpg" alt="Aadi memory 1">
-        <span>🥰 Cute Aadi</span>
+    <div class="page-container">
+
+        <div class="garden-title">
+            🌸 Aadi's Memory Garden 🌸
+        </div>
+
+        <p class="instruction">
+            Hamari cute-cute memories! 📸💕
+        </p>
+
+        <div class="photo-grid">
+
+            <div class="photo-card">
+                <img
+                    src="./photo1.jpg"
+                    alt="Aadi memory 1"
+                >
+                <span>🥰 Cute Aadi</span>
+            </div>
+
+            <div class="photo-card">
+                <img
+                    src="./photo2.jpg"
+                    alt="Aadi memory 2"
+                >
+                <span>🌸 Sweet Smile</span>
+            </div>
+
+            <div class="photo-card">
+                <img
+                    src="./photo3.jpg"
+                    alt="Aadi memory 3"
+                >
+                <span>👑 Little Princess</span>
+            </div>
+
+            <div class="photo-card">
+                <img
+                    src="./photo4.jpg"
+                    alt="Aadi memory 4"
+                >
+                <span>✨ Happy Aadi</span>
+            </div>
+
+            <div class="photo-card">
+                <img
+                    src="./photo5.jpg"
+                    alt="Aadi memory 5"
+                >
+                <span>🧸 My Cutie</span>
+            </div>
+
+            <div class="photo-card">
+                <img
+                    src="./photo6.jpg"
+                    alt="Aadi memory 6"
+                >
+                <span>💖 Beautiful Memory</span>
+            </div>
+
+            <div class="photo-card">
+                <img
+                    src="./photo7.jpg"
+                    alt="Aadi memory 7"
+                >
+                <span>🌈 Best Smile</span>
+            </div>
+
+            <div class="photo-card">
+                <img
+                    src="./photo8.jpg"
+                    alt="Aadi memory 8"
+                >
+                <span>⭐ Little Star</span>
+            </div>
+
+            <div class="photo-card">
+                <img
+                    src="./photo9.jpg"
+                    alt="Aadi memory 9"
+                >
+                <span>🦋 Sweet Memory</span>
+            </div>
+
+            <div class="photo-card">
+                <img
+                    src="./photo10.jpg"
+                    alt="Aadi memory 10"
+                >
+                <span>❤️ Forever Special</span>
+            </div>
+
+        </div>
+
+        <button
+            class="next-button"
+            type="button"
+            onclick="goToMessage()"
+        >
+            Aadi Ke Liye Message 💌
+        </button>
+
     </div>
 
-    <div class="photo-card">
-        <img src="./photo2.jpg" alt="Aadi memory 2">
-        <span>🌸 Sweet Smile</span>
-    </div>
-
-    <div class="photo-card">
-        <img src="./photo3.jpg" alt="Aadi memory 3">
-        <span>👑 Little Princess</span>
-    </div>
-
-    <div class="photo-card">
-        <img src="./photo4.jpg" alt="Aadi memory 4">
-        <span>✨ Happy Aadi</span>
-    </div>
-
-    <div class="photo-card">
-        <img src="./photo5.jpg" alt="Aadi memory 5">
-        <span>🧸 My Cutie</span>
-    </div>
-
-    <div class="photo-card">
-        <img src="./photo6.jpg" alt="Aadi memory 6">
-        <span>💖 Beautiful Memory</span>
-    </div>
-
-    <div class="photo-card">
-        <img src="./photo7.jpg" alt="Aadi memory 7">
-        <span>🌈 Best Smile</span>
-    </div>
-
-    <div class="photo-card">
-        <img src="./photo8.jpg" alt="Aadi memory 8">
-        <span>⭐ Little Star</span>
-    </div>
-
-    <div class="photo-card">
-        <img src="./photo9.jpg" alt="Aadi memory 9">
-        <span>🦋 Sweet Memory</span>
-    </div>
-
-    <div class="photo-card">
-        <img src="./photo10.jpg" alt="Aadi memory 10">
-        <span>❤️ Forever Special</span>
-    </div>
-
-</div>
+</section>
 
 
-<!-- MESSAGE -->
+<!-- =========================================
+     MESSAGE SCREEN
+========================================= -->
 
 <section id="messageScreen" class="screen hidden">
 
@@ -301,11 +409,19 @@
 
         </div>
 
-        <button id="messageVoiceButton" class="voice-message-button">
+        <button
+            id="messageVoiceButton"
+            class="voice-message-button"
+            type="button"
+        >
             🔊 Message Suno
         </button>
 
-        <button class="next-button" onclick="goToGift()">
+        <button
+            class="next-button"
+            type="button"
+            onclick="goToGift()"
+        >
             Ab Ek Surprise Hai... 🎁
         </button>
 
@@ -314,7 +430,9 @@
 </section>
 
 
-<!-- GIFT -->
+<!-- =========================================
+     GIFT SCREEN
+========================================= -->
 
 <section id="giftScreen" class="screen hidden">
 
@@ -328,7 +446,15 @@
             Gift box ko tap karo! 👆
         </p>
 
-        <div id="giftBox" class="gift-box" onclick="openGift()">
+        <div
+            id="giftBox"
+            class="gift-box"
+            role="button"
+            tabindex="0"
+            aria-label="Open surprise gift"
+            onclick="openGift()"
+            onkeydown="handleGiftKey(event)"
+        >
 
             <div class="gift-lid">
                 🎀
@@ -349,7 +475,9 @@
 </section>
 
 
-<!-- FINAL -->
+<!-- =========================================
+     FINAL SCREEN
+========================================= -->
 
 <section id="finalScreen" class="screen hidden">
 
@@ -408,7 +536,11 @@
 </section>
 
 
-<script src="script.js?v=6"></script>
+<!-- =========================================
+     JAVASCRIPT
+========================================= -->
+
+<script src="./script.js?v=10"></script>
 
 </body>
 </html>
