@@ -1,11 +1,12 @@
 /* =========================================
-   AADI RAKSHA BANDHAN WEBSITE
-   FINAL AUDIO FLOW
+   AADI RAKSHA BANDHAN
+   FINAL VERSION 20
+   REAL MP3 + COMPLETE FLOW
 ========================================= */
 
 
 /* =========================================
-   SCREEN CONTROL
+   SCREENS
 ========================================= */
 
 const screens = [
@@ -20,9 +21,13 @@ const screens = [
 ];
 
 
+/* =========================================
+   SHOW SCREEN
+========================================= */
+
 function showScreen(id) {
 
-    screens.forEach((screenId) => {
+    screens.forEach(screenId => {
 
         const screen =
             document.getElementById(screenId);
@@ -37,22 +42,25 @@ function showScreen(id) {
     const selected =
         document.getElementById(id);
 
-    if (selected) {
-
-        selected.classList.remove("hidden");
-
-        window.scrollTo({
-            top: 0,
-            behavior: "smooth"
-        });
-
+    if (!selected) {
+        console.error("Screen not found:", id);
+        return;
     }
+
+
+    selected.classList.remove("hidden");
+
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
 
 }
 
 
 /* =========================================
-   AUDIO VARIABLES
+   AUDIO SYSTEM
 ========================================= */
 
 let voiceEnabled = true;
@@ -60,35 +68,62 @@ let voiceEnabled = true;
 let currentAudio = null;
 
 
-/* =========================================
-   STOP CURRENT AUDIO
-========================================= */
+/*
+   Version number prevents cached audio/JS
+   from causing old files to load.
+*/
 
-function stopAudio() {
+const AUDIO_VERSION = "20";
 
-    if (currentAudio) {
 
-        currentAudio.pause();
+/*
+   Create the exact GitHub audio URL.
+*/
 
-        currentAudio.currentTime = 0;
+function audioPath(filename) {
 
-        currentAudio = null;
-
-    }
+    return "./" +
+        filename +
+        "?v=" +
+        AUDIO_VERSION;
 
 }
 
 
 /* =========================================
-   PLAY MP3
+   STOP AUDIO
+========================================= */
+
+function stopAudio() {
+
+    if (!currentAudio) {
+        return;
+    }
+
+
+    currentAudio.pause();
+
+    try {
+        currentAudio.currentTime = 0;
+    } catch (error) {
+        console.log(error);
+    }
+
+
+    currentAudio = null;
+
+}
+
+
+/* =========================================
+   PLAY AUDIO
+   RETURNS THE AUDIO OBJECT
 ========================================= */
 
 function playVoice(filename) {
 
     if (!voiceEnabled) {
-
         return null;
-
     }
 
 
@@ -96,7 +131,7 @@ function playVoice(filename) {
 
 
     const audio =
-        new Audio("./" + filename);
+        new Audio(audioPath(filename));
 
 
     audio.preload = "auto";
@@ -107,18 +142,109 @@ function playVoice(filename) {
     currentAudio = audio;
 
 
-    audio.play().catch((error) => {
+    audio.addEventListener(
+        "error",
+        () => {
 
-        console.error(
-            "Could not play audio:",
-            filename,
-            error
-        );
+            console.error(
+                "Could not load audio:",
+                filename
+            );
 
-    });
+        },
+        { once: true }
+    );
+
+
+    const promise =
+        audio.play();
+
+
+    if (promise) {
+
+        promise.catch(error => {
+
+            console.error(
+                "Could not play:",
+                filename,
+                error
+            );
+
+        });
+
+    }
 
 
     return audio;
+
+}
+
+
+/* =========================================
+   PLAY AUDIO AND WAIT UNTIL FINISHED
+========================================= */
+
+function playVoiceAndWait(
+    filename,
+    onFinished
+) {
+
+    if (!voiceEnabled) {
+
+        onFinished();
+
+        return;
+
+    }
+
+
+    const audio =
+        playVoice(filename);
+
+
+    if (!audio) {
+
+        onFinished();
+
+        return;
+
+    }
+
+
+    let finished = false;
+
+
+    function finish() {
+
+        if (finished) {
+            return;
+        }
+
+        finished = true;
+
+
+        if (currentAudio === audio) {
+            currentAudio = null;
+        }
+
+
+        onFinished();
+
+    }
+
+
+    audio.addEventListener(
+        "ended",
+        finish,
+        { once: true }
+    );
+
+
+    audio.addEventListener(
+        "error",
+        finish,
+        { once: true }
+    );
 
 }
 
@@ -128,7 +254,9 @@ function playVoice(filename) {
 ========================================= */
 
 const voiceButton =
-    document.getElementById("voiceButton");
+    document.getElementById(
+        "voiceButton"
+    );
 
 
 if (voiceButton) {
@@ -160,11 +288,13 @@ if (voiceButton) {
 
 
 /* =========================================
-   START BUTTON
+   START
 ========================================= */
 
 const startButton =
-    document.getElementById("startButton");
+    document.getElementById(
+        "startButton"
+    );
 
 
 if (startButton) {
@@ -174,23 +304,18 @@ if (startButton) {
         () => {
 
             /*
-               IMPORTANT:
+               PAGE 1 STAYS VISIBLE.
 
-               We DO NOT change to the next
-               screen immediately.
+               The next page is NOT opened here.
 
-               Page 1 remains visible.
-
-               welcome.mp3 plays.
-
-               Only after welcome.mp3 finishes
-               does Page 2 appear.
+               welcome.mp3 plays first.
             */
-
 
             if (!voiceEnabled) {
 
-                showScreen("welcomeScreen");
+                showScreen(
+                    "welcomeScreen"
+                );
 
                 return;
 
@@ -201,102 +326,90 @@ if (startButton) {
 
 
             const audio =
-                new Audio("./welcome.mp3");
+                new Audio(
+                    audioPath(
+                        "welcome.mp3"
+                    )
+                );
 
+
+            currentAudio = audio;
 
             audio.preload = "auto";
 
             audio.volume = 1;
 
 
-            currentAudio = audio;
+            let moved = false;
+
+
+            function moveToWelcome() {
+
+                if (moved) {
+                    return;
+                }
+
+                moved = true;
+
+
+                if (currentAudio === audio) {
+                    currentAudio = null;
+                }
+
+
+                showScreen(
+                    "welcomeScreen"
+                );
+
+            }
 
 
             /*
-               Move to next page ONLY when
-               the actual MP3 has finished.
+               ONLY AFTER welcome.mp3 FINISHES
+               will Page 2 appear.
             */
 
             audio.addEventListener(
                 "ended",
-                () => {
-
-                    /*
-                       Make sure Start audio is
-                       still the active audio.
-                    */
-
-                    if (currentAudio === audio) {
-
-                        currentAudio = null;
-
-                        showScreen(
-                            "welcomeScreen"
-                        );
-
-                    }
-
-                },
+                moveToWelcome,
                 { once: true }
             );
 
 
             /*
-               If welcome.mp3 cannot load,
-               don't leave Aadi stuck.
+               If the file genuinely cannot play,
+               continue rather than getting stuck.
             */
 
             audio.addEventListener(
                 "error",
-                (error) => {
+                () => {
 
                     console.error(
-                        "welcome.mp3 error:",
-                        error
+                        "welcome.mp3 failed to load"
                     );
 
-
-                    if (currentAudio === audio) {
-
-                        currentAudio = null;
-
-                        showScreen(
-                            "welcomeScreen"
-                        );
-
-                    }
+                    moveToWelcome();
 
                 },
                 { once: true }
             );
 
 
-            /*
-               Start the actual uploaded MP3.
-            */
-
-            audio.play().catch((error) => {
+            audio.play().catch(error => {
 
                 console.error(
-                    "welcome.mp3 play error:",
+                    "welcome.mp3 playback failed:",
                     error
                 );
 
-
                 /*
-                   If browser refuses playback,
-                   continue to the next screen.
+                   Only use this fallback
+                   when the browser actually
+                   refuses the audio.
                 */
 
-                if (currentAudio === audio) {
-
-                    currentAudio = null;
-
-                    showScreen(
-                        "welcomeScreen"
-                    );
-
-                }
+                moveToWelcome();
 
             });
 
@@ -314,19 +427,24 @@ function goToGame() {
 
     stopAudio();
 
-    showScreen("gameScreen");
+
+    showScreen(
+        "gameScreen"
+    );
 
 
     /*
-       Quiz introduction plays AFTER
-       the quiz page appears.
+       This happens after the user
+       presses the button.
     */
 
     setTimeout(() => {
 
-        playVoice("quiz-intro.mp3");
+        playVoice(
+            "quiz-intro.mp3"
+        );
 
-    }, 200);
+    }, 150);
 
 }
 
@@ -342,17 +460,17 @@ function wrongAnswer(button) {
     }
 
 
-    button.classList.remove("shake");
+    button.classList.remove(
+        "shake"
+    );
 
-
-    /*
-       Restart CSS animation.
-    */
 
     void button.offsetWidth;
 
 
-    button.classList.add("shake");
+    button.classList.add(
+        "shake"
+    );
 
 
     const message =
@@ -375,7 +493,18 @@ function wrongAnswer(button) {
    CORRECT ANSWER
 ========================================= */
 
+let quizCompleted = false;
+
+
 function correctAnswer() {
+
+    if (quizCompleted) {
+        return;
+    }
+
+
+    quizCompleted = true;
+
 
     const message =
         document.getElementById(
@@ -392,67 +521,48 @@ function correctAnswer() {
 
 
     /*
-       Play exact downloaded MP3.
+       Wait for the REAL MP3 to finish.
     */
 
-    const audio =
-        playVoice("quiz-correct.mp3");
+    playVoiceAndWait(
+        "quiz-correct.mp3",
+        () => {
+
+            showScreen(
+                "heartGameScreen"
+            );
 
 
-    /*
-       Move to heart game ONLY after
-       quiz-correct.mp3 finishes.
-    */
+            startHeartGame();
 
-    if (audio) {
-
-        audio.addEventListener(
-            "ended",
-            () => {
-
-                if (currentAudio === audio) {
-
-                    currentAudio = null;
-
-                }
-
-                showScreen(
-                    "heartGameScreen"
-                );
-
-                startHeartGame();
-
-            },
-            { once: true }
-        );
-
-    } else {
-
-        showScreen(
-            "heartGameScreen"
-        );
-
-        startHeartGame();
-
-    }
+        }
+    );
 
 }
 
 
 /* =========================================
-   HEART GAME
+   HEART GAME VARIABLES
 ========================================= */
 
 let heartScore = 0;
 
 let heartGameStarted = false;
 
+let heartTransitioning = false;
+
+
+/* =========================================
+   START HEART GAME
+========================================= */
 
 function startHeartGame() {
 
     heartScore = 0;
 
     heartGameStarted = true;
+
+    heartTransitioning = false;
 
 
     const score =
@@ -489,9 +599,7 @@ function startHeartGame() {
 
 
     if (!area) {
-
         return;
-
     }
 
 
@@ -499,57 +607,33 @@ function startHeartGame() {
 
 
     /*
-       Play heart game intro.
+       Play heart-game.mp3.
+
+       Hearts appear only after the
+       introduction finishes.
     */
 
-    const audio =
-        playVoice("heart-game.mp3");
+    playVoiceAndWait(
+        "heart-game.mp3",
+        () => {
+
+            if (!heartGameStarted) {
+                return;
+            }
 
 
-    /*
-       First heart appears AFTER
-       heart-game.mp3 finishes.
-    */
+            if (message) {
 
-    if (audio) {
+                message.textContent =
+                    "Tap the hearts! 👆❤️";
 
-        audio.addEventListener(
-            "ended",
-            () => {
+            }
 
-                if (heartGameStarted) {
 
-                    if (currentAudio === audio) {
+            createHeart();
 
-                        currentAudio = null;
-
-                    }
-
-                    const newMessage =
-                        document.getElementById(
-                            "heartMessage"
-                        );
-
-                    if (newMessage) {
-
-                        newMessage.textContent =
-                            "Tap the hearts! 👆❤️";
-
-                    }
-
-                    createHeart();
-
-                }
-
-            },
-            { once: true }
-        );
-
-    } else {
-
-        createHeart();
-
-    }
+        }
+    );
 
 }
 
@@ -582,24 +666,28 @@ function createHeart() {
 
 
     const heart =
-        document.createElement("button");
+        document.createElement(
+            "button"
+        );
 
 
-    heart.className = "heart";
+    heart.className =
+        "heart";
 
-    heart.type = "button";
 
-    heart.innerHTML = "❤️";
+    heart.type =
+        "button";
+
+
+    heart.innerHTML =
+        "❤️";
+
 
     heart.setAttribute(
         "aria-label",
         "Catch heart"
     );
 
-
-    /*
-       Random position.
-    */
 
     const maxX =
         Math.max(
@@ -616,22 +704,27 @@ function createHeart() {
 
 
     heart.style.left =
-        Math.random() * maxX + "px";
+        Math.random() *
+            maxX +
+        "px";
 
 
     heart.style.top =
-        Math.random() * maxY + "px";
+        Math.random() *
+            maxY +
+        "px";
 
-
-    /*
-       Heart click.
-    */
 
     heart.addEventListener(
         "click",
         () => {
 
             if (!heartGameStarted) {
+                return;
+            }
+
+
+            if (heartTransitioning) {
                 return;
             }
 
@@ -657,151 +750,101 @@ function createHeart() {
 
 
             /*
-               Play exact short
-               heart-caught.mp3.
+               Play heart-caught.mp3.
             */
 
-            const caughtAudio =
-                playVoice(
-                    "heart-caught.mp3"
-                );
+            playVoiceAndWait(
+                "heart-caught.mp3",
+                () => {
+
+                    /*
+                       All 7 hearts caught.
+                    */
+
+                    if (heartScore >= 7) {
+
+                        heartTransitioning =
+                            true;
+
+                        heartGameStarted =
+                            false;
 
 
-            /*
-               Seven hearts complete.
-            */
-
-            if (heartScore >= 7) {
-
-                heartGameStarted =
-                    false;
+                        const message =
+                            document.getElementById(
+                                "heartMessage"
+                            );
 
 
-                const message =
-                    document.getElementById(
-                        "heartMessage"
-                    );
+                        if (message) {
+
+                            message.textContent =
+                                "Wowww! Aadi ne saare hearts pakad liye! 🎉❤️";
+
+                        }
 
 
-                if (message) {
+                        /*
+                           Go to Memory Garden.
+                        */
 
-                    message.textContent =
-                        "Wowww! Aadi ne saare hearts pakad liye! 🎉❤️";
+                        showScreen(
+                            "memoryScreen"
+                        );
 
-                }
 
+                        /*
+                           Photos are now visible.
+                           Play memories.mp3.
+                        */
 
-                /*
-                   Wait until the caught-heart
-                   sound finishes.
-                */
+                        playVoiceAndWait(
+                            "memories.mp3",
+                            () => {
 
-                if (caughtAudio) {
+                                /*
+                                   THIS FIXES THE
+                                   MEMORY GARDEN GETTING
+                                   STUCK.
 
-                    caughtAudio.addEventListener(
-                        "ended",
-                        () => {
+                                   After memories.mp3,
+                                   automatically go
+                                   to the message page.
+                                */
 
-                            if (
-                                currentAudio ===
-                                caughtAudio
-                            ) {
-
-                                currentAudio =
-                                    null;
-
-                            }
-
-                            goToMemories();
-
-                        },
-                        { once: true }
-                    );
-
-                } else {
-
-                    goToMemories();
-
-                }
-
-            }
-
-            else {
-
-                /*
-                   Create the next heart AFTER
-                   the short voice ends.
-                */
-
-                if (caughtAudio) {
-
-                    caughtAudio.addEventListener(
-                        "ended",
-                        () => {
-
-                            if (
-                                heartGameStarted
-                            ) {
-
-                                if (
-                                    currentAudio ===
-                                    caughtAudio
-                                ) {
-
-                                    currentAudio =
-                                        null;
-
-                                }
-
-                                createHeart();
+                                goToMessage();
 
                             }
+                        );
 
-                        },
-                        { once: true }
-                    );
+                    }
 
-                } else {
+                    else {
 
-                    setTimeout(
-                        createHeart,
-                        500
-                    );
+                        /*
+                           Next heart.
+                        */
+
+                        if (
+                            heartGameStarted
+                        ) {
+
+                            createHeart();
+
+                        }
+
+                    }
 
                 }
-
-            }
+            );
 
         }
     );
 
 
-    area.appendChild(heart);
-
-}
-
-
-/* =========================================
-   MEMORY GARDEN
-========================================= */
-
-function goToMemories() {
-
-    showScreen("memoryScreen");
-
-
-    /*
-       Photos are already visible
-       when this screen opens.
-
-       Then memories.mp3 plays.
-    */
-
-    setTimeout(() => {
-
-        playVoice("memories.mp3");
-
-    }, 300);
+    area.appendChild(
+        heart
+    );
 
 }
 
@@ -810,24 +853,44 @@ function goToMemories() {
    MEMORY → MESSAGE
 ========================================= */
 
+let messageStarted = false;
+
+
 function goToMessage() {
+
+    if (messageStarted) {
+        return;
+    }
+
+
+    messageStarted = true;
+
 
     stopAudio();
 
-    showScreen("messageScreen");
 
+    showScreen(
+        "messageScreen"
+    );
+
+
+    /*
+       Play exact message.mp3
+    */
 
     setTimeout(() => {
 
-        playVoice("message.mp3");
+        playVoice(
+            "message.mp3"
+        );
 
-    }, 300);
+    }, 200);
 
 }
 
 
 /* =========================================
-   MESSAGE VOICE BUTTON
+   MESSAGE REPLAY
 ========================================= */
 
 const messageVoiceButton =
@@ -842,7 +905,9 @@ if (messageVoiceButton) {
         "click",
         () => {
 
-            playVoice("message.mp3");
+            playVoice(
+                "message.mp3"
+            );
 
         }
     );
@@ -854,28 +919,34 @@ if (messageVoiceButton) {
    MESSAGE → GIFT
 ========================================= */
 
+let giftPageStarted = false;
+
+
 function goToGift() {
 
-    /*
-       Stop the message voice.
-    */
+    giftPageStarted = false;
+
 
     stopAudio();
 
 
-    showScreen("giftScreen");
+    showScreen(
+        "giftScreen"
+    );
 
 
     /*
-       Start gift voice when gift page
-       appears.
+       Play gift.mp3 once when
+       the gift page appears.
     */
 
     setTimeout(() => {
 
-        playVoice("gift.mp3");
+        playVoice(
+            "gift.mp3"
+        );
 
-    }, 300);
+    }, 200);
 
 }
 
@@ -884,7 +955,18 @@ function goToGift() {
    OPEN GIFT
 ========================================= */
 
+let giftOpened = false;
+
+
 function openGift() {
+
+    if (giftOpened) {
+        return;
+    }
+
+
+    giftOpened = true;
+
 
     const gift =
         document.getElementById(
@@ -897,22 +979,9 @@ function openGift() {
     }
 
 
-    /*
-       Don't open twice.
-    */
-
-    if (
-        gift.classList.contains(
-            "opened"
-        )
-    ) {
-
-        return;
-
-    }
-
-
-    gift.classList.add("opened");
+    gift.classList.add(
+        "opened"
+    );
 
 
     const hint =
@@ -929,11 +998,6 @@ function openGift() {
     }
 
 
-    /*
-       Stop the gift introduction
-       when the box is opened.
-    */
-
     stopAudio();
 
 
@@ -941,26 +1005,26 @@ function openGift() {
 
 
     /*
-       Show final screen.
+       Go to final screen.
     */
 
     setTimeout(() => {
 
-        showScreen("finalScreen");
+        showScreen(
+            "finalScreen"
+        );
 
 
         createConfetti();
 
 
-        /*
-           Final MP3.
-        */
-
         setTimeout(() => {
 
-            playVoice("final.mp3");
+            playVoice(
+                "final.mp3"
+            );
 
-        }, 400);
+        }, 300);
 
     }, 1800);
 
@@ -968,7 +1032,7 @@ function openGift() {
 
 
 /* =========================================
-   KEYBOARD SUPPORT FOR GIFT
+   GIFT KEYBOARD SUPPORT
 ========================================= */
 
 function handleGiftKey(event) {
@@ -1025,7 +1089,9 @@ function createConfetti() {
     ) {
 
         const piece =
-            document.createElement("span");
+            document.createElement(
+                "span"
+            );
 
 
         piece.className =
@@ -1042,18 +1108,24 @@ function createConfetti() {
 
 
         piece.style.left =
-            Math.random() * 100 + "%";
+            Math.random() *
+                100 +
+            "%";
 
 
         piece.style.animationDuration =
             (
                 2.5 +
-                Math.random() * 3
-            ) + "s";
+                Math.random() *
+                3
+            ) +
+            "s";
 
 
         piece.style.animationDelay =
-            Math.random() * 1.5 + "s";
+            Math.random() *
+                1.5 +
+            "s";
 
 
         container.appendChild(
@@ -1073,12 +1145,12 @@ function createConfetti() {
 
 
 /* =========================================
-   PHOTO CLICK EFFECT
+   PHOTO CLICK
 ========================================= */
 
 document.addEventListener(
     "click",
-    (event) => {
+    event => {
 
         const card =
             event.target.closest(
@@ -1094,7 +1166,8 @@ document.addEventListener(
         card.animate(
             [
                 {
-                    transform: "scale(1)"
+                    transform:
+                        "scale(1)"
                 },
 
                 {
@@ -1103,8 +1176,10 @@ document.addEventListener(
                 },
 
                 {
-                    transform: "scale(1)"
+                    transform:
+                        "scale(1)"
                 }
+
             ],
             {
                 duration: 500
@@ -1112,4 +1187,21 @@ document.addEventListener(
         );
 
     }
+);
+
+
+/* =========================================
+   PAGE LOAD DEBUG
+========================================= */
+
+console.log(
+    "Aadi website version 20 loaded"
+);
+
+console.log(
+    "Real MP3 voice system active"
+);
+
+console.log(
+    "Automatic Memory → Message flow active"
 );
