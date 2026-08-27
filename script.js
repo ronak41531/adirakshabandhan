@@ -1,6 +1,7 @@
 /* =========================================
    AADI RAKSHA BANDHAN WEBSITE
-   REAL MP3 VOICE SYSTEM
+   EXACT DOWNLOADED MP3 VOICE SYSTEM
+   VERSION 3
 ========================================= */
 
 
@@ -18,7 +19,6 @@ const screens = [
     "giftScreen",
     "finalScreen"
 ];
-
 
 function showScreen(id) {
 
@@ -42,54 +42,80 @@ function showScreen(id) {
             top: 0,
             behavior: "smooth"
         });
-
     }
 }
 
 
 /* =========================================
-   REAL MP3 VOICE SYSTEM
+   EXACT MP3 VOICE SYSTEM
 ========================================= */
 
 let voiceEnabled = true;
-
 let currentAudio = null;
 
 
-const voiceButton =
-    document.getElementById("voiceButton");
-
-
 /*
-   All MP3 files are in the ROOT
-   of your GitHub repository.
+   IMPORTANT:
+   All audio files are in the ROOT
+   of the GitHub repository.
+
+   ?v=3 forces the browser to get
+   the newest version instead of an
+   old cached file.
 */
 
 const audioFiles = {
 
-    welcome: "welcome.mp3",
+    welcome:
+        "./welcome.mp3?v=3",
 
-    quizIntro: "quiz-intro.mp3",
+    quizIntro:
+        "./quiz-intro.mp3?v=3",
 
-    quizCorrect: "quiz-correct.mp3",
+    quizCorrect:
+        "./quiz-correct.mp3?v=3",
 
-    heartGame: "heart-game.mp3",
+    heartGame:
+        "./heart-game.mp3?v=3",
 
-    heartCaught: "heart-caught.mp3",
+    heartCaught:
+        "./heart-caught.mp3?v=3",
 
-    memories: "memories.mp3",
+    memories:
+        "./memories.mp3?v=3",
 
-    message: "message.mp3",
+    message:
+        "./message.mp3?v=3",
 
-    gift: "gift.mp3",
+    gift:
+        "./gift.mp3?v=3",
 
-    final: "final.mp3"
-
+    final:
+        "./final.mp3?v=3"
 };
 
 
 /* =========================================
-   PLAY AUDIO
+   PRELOAD AUDIO
+========================================= */
+
+const preloadedAudio = {};
+
+Object.keys(audioFiles).forEach(name => {
+
+    const audio = new Audio();
+
+    audio.preload = "auto";
+
+    audio.src = audioFiles[name];
+
+    preloadedAudio[name] = audio;
+
+});
+
+
+/* =========================================
+   PLAY EXACT MP3
 ========================================= */
 
 function playVoice(name) {
@@ -98,60 +124,62 @@ function playVoice(name) {
         return;
     }
 
-    const file = audioFiles[name];
-
-    if (!file) {
-        console.log("Audio file not found:", name);
+    if (!audioFiles[name]) {
+        console.error("Audio file does not exist:", name);
         return;
     }
 
 
-    /*
-       Stop previous audio.
-    */
+    /* Stop previous audio */
 
     if (currentAudio) {
 
         currentAudio.pause();
 
         currentAudio.currentTime = 0;
-
     }
 
 
     /*
-       Create audio from MP3.
+       Create a completely fresh Audio object.
+       This prevents old browser audio from being reused.
     */
 
-    currentAudio = new Audio(file);
+    currentAudio = new Audio(audioFiles[name]);
 
-    currentAudio.volume = 1;
+    currentAudio.preload = "auto";
+
+    currentAudio.volume = 1.0;
 
 
     /*
-       Play exact downloaded MP3.
+       IMPORTANT:
+       Play the EXACT MP3 uploaded to GitHub.
     */
 
-    const playPromise = currentAudio.play();
-
-    if (playPromise !== undefined) {
-
-        playPromise.catch(error => {
+    currentAudio.play()
+        .then(() => {
 
             console.log(
-                "Audio could not play:",
+                "Playing exact MP3:",
+                audioFiles[name]
+            );
+
+        })
+        .catch(error => {
+
+            console.error(
+                "Could not play MP3:",
+                audioFiles[name],
                 error
             );
 
         });
-
-    }
-
 }
 
 
 /* =========================================
-   STOP AUDIO
+   STOP VOICE
 ========================================= */
 
 function stopVoice() {
@@ -161,9 +189,7 @@ function stopVoice() {
         currentAudio.pause();
 
         currentAudio.currentTime = 0;
-
     }
-
 }
 
 
@@ -171,10 +197,13 @@ function stopVoice() {
    VOICE BUTTON
 ========================================= */
 
+const voiceButton =
+    document.getElementById("voiceButton");
+
+
 voiceButton.addEventListener("click", () => {
 
     voiceEnabled = !voiceEnabled;
-
 
     voiceButton.textContent =
         voiceEnabled ? "🔊" : "🔇";
@@ -197,10 +226,9 @@ document
     .getElementById("startButton")
     .addEventListener("click", () => {
 
-
         /*
-           Because the user clicked this button,
-           the browser allows the MP3 to play.
+           This click gives the browser
+           permission to play audio.
         */
 
         playVoice("welcome");
@@ -216,7 +244,7 @@ document
 
 
 /* =========================================
-   WELCOME
+   WELCOME → QUIZ
 ========================================= */
 
 function goToGame() {
@@ -224,12 +252,11 @@ function goToGame() {
     playVoice("quizIntro");
 
     showScreen("gameScreen");
-
 }
 
 
 /* =========================================
-   QUIZ
+   QUIZ WRONG ANSWER
 ========================================= */
 
 function wrongAnswer(button) {
@@ -245,12 +272,11 @@ function wrongAnswer(button) {
         .getElementById("gameMessage")
         .textContent =
         "Oops! Dobara try karo Aadi! 😜💖";
-
 }
 
 
 /* =========================================
-   CORRECT ANSWER
+   QUIZ CORRECT ANSWER
 ========================================= */
 
 function correctAnswer() {
@@ -282,14 +308,12 @@ function correctAnswer() {
 ========================================= */
 
 let heartScore = 0;
-
 let heartGameStarted = false;
 
 
 function startHeartGame() {
 
     heartScore = 0;
-
 
     document
         .getElementById("heartScore")
@@ -308,12 +332,9 @@ function startHeartGame() {
 
     area.innerHTML = "";
 
-
     heartGameStarted = true;
 
-
     createHeart();
-
 }
 
 
@@ -326,7 +347,6 @@ function createHeart() {
     if (!heartGameStarted) {
         return;
     }
-
 
     if (heartScore >= 7) {
         return;
@@ -370,7 +390,6 @@ function createHeart() {
 
     heart.addEventListener("click", () => {
 
-
         heartScore++;
 
 
@@ -384,15 +403,13 @@ function createHeart() {
 
 
         /*
-           Play YOUR downloaded
-           heart-caught.mp3
+           EXACT downloaded heart sound
         */
 
         playVoice("heartCaught");
 
 
         if (heartScore >= 7) {
-
 
             heartGameStarted = false;
 
@@ -414,7 +431,6 @@ function createHeart() {
 
         } else {
 
-
             setTimeout(
                 createHeart,
                 300
@@ -426,12 +442,11 @@ function createHeart() {
 
 
     area.appendChild(heart);
-
 }
 
 
 /* =========================================
-   MESSAGE
+   MEMORY → MESSAGE
 ========================================= */
 
 function goToMessage() {
@@ -449,7 +464,7 @@ function goToMessage() {
 
 
 /* =========================================
-   MESSAGE BUTTON
+   MESSAGE VOICE BUTTON
 ========================================= */
 
 document
@@ -462,7 +477,7 @@ document
 
 
 /* =========================================
-   GIFT
+   MESSAGE → GIFT
 ========================================= */
 
 function goToGift() {
@@ -498,6 +513,10 @@ function openGift() {
         "Yayyyy! Surpriseee! 🎉🎁❤️";
 
 
+    /*
+       Play exact downloaded gift MP3
+    */
+
     playVoice("gift");
 
 
@@ -505,7 +524,6 @@ function openGift() {
 
 
     setTimeout(() => {
-
 
         showScreen("finalScreen");
 
@@ -558,7 +576,6 @@ function createConfetti() {
 
     for (let i = 0; i < 70; i++) {
 
-
         const piece =
             document.createElement("span");
 
@@ -606,51 +623,43 @@ function createConfetti() {
 
 
 /* =========================================
-   PHOTO CLICK
+   PHOTO CLICK EFFECT
 ========================================= */
 
 document.addEventListener(
     "click",
     event => {
 
-
-        if (
+        const card =
             event.target.closest(
                 ".photo-card"
-            )
-        ) {
-
-
-            const card =
-                event.target.closest(
-                    ".photo-card"
-                );
-
-
-            card.animate(
-                [
-                    {
-                        transform:
-                            "scale(1)"
-                    },
-
-                    {
-                        transform:
-                            "scale(1.12) rotate(0deg)"
-                    },
-
-                    {
-                        transform:
-                            "scale(1)"
-                    }
-                ],
-
-                {
-                    duration: 500
-                }
             );
 
+
+        if (!card) {
+            return;
         }
+
+
+        card.animate(
+            [
+                {
+                    transform: "scale(1)"
+                },
+
+                {
+                    transform:
+                        "scale(1.12) rotate(0deg)"
+                },
+
+                {
+                    transform: "scale(1)"
+                }
+            ],
+            {
+                duration: 500
+            }
+        );
 
     }
 );
@@ -666,7 +675,6 @@ let lastTouchEnd = 0;
 document.addEventListener(
     "touchend",
     event => {
-
 
         const now =
             Date.now();
@@ -685,4 +693,21 @@ document.addEventListener(
 
     },
     false
+);
+
+
+/* =========================================
+   DEBUG MESSAGE
+========================================= */
+
+console.log(
+    "Aadi Raksha Bandhan Website - Version 3 loaded"
+);
+
+console.log(
+    "Exact MP3 voice system active"
+);
+
+console.log(
+    "Photos expected in repository root"
 );
