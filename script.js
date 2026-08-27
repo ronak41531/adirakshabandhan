@@ -1,6 +1,6 @@
 /* =========================================
    AADI RAKSHA BANDHAN WEBSITE
-   AUDIO VERSION
+   FINAL AUDIO + PAGE FLOW
 ========================================= */
 
 
@@ -34,15 +34,13 @@ function showScreen(id) {
     const selected = document.getElementById(id);
 
     if (selected) {
-
         selected.classList.remove("hidden");
-
-        window.scrollTo({
-            top: 0,
-            behavior: "smooth"
-        });
-
     }
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
 }
 
 
@@ -54,9 +52,8 @@ let voiceEnabled = true;
 let currentAudio = null;
 
 
-/*
-   Stop whatever audio is currently playing.
-*/
+/* Stop current audio */
+
 function stopAudio() {
 
     if (currentAudio) {
@@ -71,33 +68,42 @@ function stopAudio() {
 
 
 /*
-   Play one of your downloaded MP3 files.
+   Play an MP3 normally.
 */
-function playVoice(fileName) {
 
-    if (!voiceEnabled) return;
+function playVoice(filename) {
+
+    if (!voiceEnabled) {
+        return null;
+    }
 
     stopAudio();
 
-    currentAudio = new Audio(fileName);
+    currentAudio = new Audio("./" + filename);
 
     currentAudio.preload = "auto";
-
     currentAudio.volume = 1;
 
     currentAudio.play().catch(error => {
 
-        console.log("Audio could not play:", fileName, error);
+        console.error(
+            "Could not play:",
+            filename,
+            error
+        );
 
     });
 
+    return currentAudio;
 }
 
 
-/*
-   Voice ON/OFF button
-*/
-const voiceButton = document.getElementById("voiceButton");
+/* =========================================
+   VOICE BUTTON
+========================================= */
+
+const voiceButton =
+    document.getElementById("voiceButton");
 
 if (voiceButton) {
 
@@ -118,25 +124,99 @@ if (voiceButton) {
 
 
 /* =========================================
-   START SCREEN
+   START BUTTON
 ========================================= */
 
 const startButton =
     document.getElementById("startButton");
 
+
 if (startButton) {
 
-    startButton.addEventListener("click", () => {
+    startButton.addEventListener("click", function () {
 
         /*
            IMPORTANT:
-           Start button plays WELCOME voice
-           BEFORE changing to the next page.
+           DO NOT CHANGE PAGE HERE.
+
+           Page 1 remains visible while
+           welcome.mp3 is playing.
         */
 
-        playVoice("welcome.mp3");
+        if (!voiceEnabled) {
 
-        showScreen("welcomeScreen");
+            showScreen("welcomeScreen");
+
+            return;
+
+        }
+
+
+        stopAudio();
+
+
+        const audio =
+            new Audio("./welcome.mp3");
+
+
+        currentAudio = audio;
+
+
+        audio.preload = "auto";
+        audio.volume = 1;
+
+
+        /*
+           ONLY after welcome.mp3 finishes
+           do we open Page 2.
+        */
+
+        audio.addEventListener(
+            "ended",
+            function () {
+
+                showScreen("welcomeScreen");
+
+            },
+            { once: true }
+        );
+
+
+        /*
+           If the MP3 fails, continue anyway.
+        */
+
+        audio.addEventListener(
+            "error",
+            function () {
+
+                console.error(
+                    "welcome.mp3 could not be loaded."
+                );
+
+                showScreen("welcomeScreen");
+
+            },
+            { once: true }
+        );
+
+
+        /*
+           User clicked the button,
+           so mobile browsers normally
+           allow this audio to play.
+        */
+
+        audio.play().catch(error => {
+
+            console.error(
+                "welcome.mp3 playback failed:",
+                error
+            );
+
+            showScreen("welcomeScreen");
+
+        });
 
     });
 
@@ -153,9 +233,10 @@ function goToGame() {
 
     showScreen("gameScreen");
 
+
     /*
-       Play quiz introduction only after
-       entering the quiz page.
+       Quiz voice plays AFTER
+       quiz screen appears.
     */
 
     setTimeout(() => {
@@ -168,10 +249,15 @@ function goToGame() {
 
 
 /* =========================================
-   QUIZ
+   WRONG ANSWER
 ========================================= */
 
 function wrongAnswer(button) {
+
+    if (!button) {
+        return;
+    }
+
 
     button.classList.remove("shake");
 
@@ -179,8 +265,10 @@ function wrongAnswer(button) {
 
     button.classList.add("shake");
 
+
     const message =
         document.getElementById("gameMessage");
+
 
     if (message) {
 
@@ -192,10 +280,15 @@ function wrongAnswer(button) {
 }
 
 
+/* =========================================
+   CORRECT ANSWER
+========================================= */
+
 function correctAnswer() {
 
     const message =
         document.getElementById("gameMessage");
+
 
     if (message) {
 
@@ -204,24 +297,40 @@ function correctAnswer() {
 
     }
 
+
     /*
-       Play downloaded correct-answer voice.
+       Play exact downloaded voice.
     */
 
     playVoice("quiz-correct.mp3");
 
 
     /*
-       Wait before moving to heart game.
+       Wait for the correct-answer
+       voice to finish.
     */
 
-    setTimeout(() => {
+    if (currentAudio) {
+
+        currentAudio.addEventListener(
+            "ended",
+            () => {
+
+                showScreen("heartGameScreen");
+
+                startHeartGame();
+
+            },
+            { once: true }
+        );
+
+    } else {
 
         showScreen("heartGameScreen");
 
         startHeartGame();
 
-    }, 3500);
+    }
 
 }
 
@@ -240,16 +349,21 @@ function startHeartGame() {
 
     heartGameStarted = true;
 
+
     const score =
         document.getElementById("heartScore");
 
+
     if (score) {
+
         score.textContent = "0";
+
     }
 
 
     const message =
         document.getElementById("heartMessage");
+
 
     if (message) {
 
@@ -262,51 +376,78 @@ function startHeartGame() {
     const area =
         document.getElementById("heartArea");
 
-    if (!area) return;
+
+    if (!area) {
+        return;
+    }
+
 
     area.innerHTML = "";
 
 
     /*
-       Play heart-game introduction
-       when heart game opens.
+       Heart game introduction.
     */
 
-    setTimeout(() => {
-
-        playVoice("heart-game.mp3");
-
-    }, 300);
+    playVoice("heart-game.mp3");
 
 
     /*
-       Create first heart after a short delay.
+       Wait for heart-game voice to finish
+       before showing the first heart.
     */
 
-    setTimeout(() => {
+    if (currentAudio) {
+
+        currentAudio.addEventListener(
+            "ended",
+            () => {
+
+                if (heartGameStarted) {
+                    createHeart();
+                }
+
+            },
+            { once: true }
+        );
+
+    } else {
 
         createHeart();
 
-    }, 1200);
+    }
 
 }
 
 
+/* =========================================
+   CREATE HEART
+========================================= */
+
 function createHeart() {
 
-    if (!heartGameStarted) return;
+    if (!heartGameStarted) {
+        return;
+    }
 
-    if (heartScore >= 7) return;
+
+    if (heartScore >= 7) {
+        return;
+    }
 
 
     const area =
         document.getElementById("heartArea");
 
-    if (!area) return;
+
+    if (!area) {
+        return;
+    }
 
 
     const heart =
         document.createElement("button");
+
 
     heart.className = "heart";
 
@@ -314,101 +455,140 @@ function createHeart() {
 
 
     const maxX =
-        Math.max(20, area.clientWidth - 65);
+        Math.max(
+            20,
+            area.clientWidth - 65
+        );
+
 
     const maxY =
-        Math.max(20, area.clientHeight - 65);
+        Math.max(
+            20,
+            area.clientHeight - 65
+        );
 
 
     heart.style.left =
         Math.random() * maxX + "px";
 
+
     heart.style.top =
         Math.random() * maxY + "px";
 
 
-    heart.addEventListener("click", () => {
+    heart.addEventListener(
+        "click",
+        function () {
 
-        heartScore++;
-
-
-        const score =
-            document.getElementById("heartScore");
-
-        if (score) {
-
-            score.textContent =
-                heartScore;
-
-        }
+            if (!heartGameStarted) {
+                return;
+            }
 
 
-        heart.remove();
+            heartScore++;
 
 
-        /*
-           Play heart-caught.mp3
-           every time a heart is caught.
-        */
-
-        playVoice("heart-caught.mp3");
+            const score =
+                document.getElementById(
+                    "heartScore"
+                );
 
 
-        if (heartScore >= 7) {
+            if (score) {
 
-            heartGameStarted = false;
-
-
-            const message =
-                document.getElementById("heartMessage");
-
-            if (message) {
-
-                message.textContent =
-                    "Wowww! Aadi ne saare hearts pakad liye! 🎉❤️";
+                score.textContent =
+                    heartScore;
 
             }
 
 
+            heart.remove();
+
+
             /*
-               Go to Memory Garden.
+               Play short heart-caught.mp3
             */
 
-            setTimeout(() => {
+            playVoice("heart-caught.mp3");
 
-                showScreen("memoryScreen");
+
+            /*
+               If 7 hearts are completed.
+            */
+
+            if (heartScore >= 7) {
+
+                heartGameStarted = false;
+
+
+                const message =
+                    document.getElementById(
+                        "heartMessage"
+                    );
+
+
+                if (message) {
+
+                    message.textContent =
+                        "Wowww! Aadi ne saare hearts pakad liye! 🎉❤️";
+
+                }
+
 
                 /*
-                   THIS is the important part.
-                   The memories voice plays when
-                   the photos appear.
+                   Wait for heart-caught sound
+                   to finish before Memory Garden.
                 */
 
-                setTimeout(() => {
+                if (currentAudio) {
 
-                    playVoice("memories.mp3");
+                    currentAudio.addEventListener(
+                        "ended",
+                        goToMemories,
+                        { once: true }
+                    );
 
-                }, 400);
+                } else {
 
-            }, 2500);
+                    goToMemories();
+
+                }
 
 
-        } else {
+            } else {
 
-            /*
-               Give the next heart after
-               the short audio clip begins.
-            */
+                /*
+                   Create the next heart
+                   after the short voice finishes.
+                */
 
-            setTimeout(() => {
+                if (currentAudio) {
 
-                createHeart();
+                    currentAudio.addEventListener(
+                        "ended",
+                        () => {
 
-            }, 700);
+                            if (heartGameStarted) {
+                                createHeart();
+                            }
+
+                        },
+                        { once: true }
+                    );
+
+                } else {
+
+                    setTimeout(
+                        createHeart,
+                        500
+                    );
+
+                }
+
+            }
 
         }
-
-    });
+    );
 
 
     area.appendChild(heart);
@@ -417,14 +597,31 @@ function createHeart() {
 
 
 /* =========================================
-   MEMORY GARDEN
+   GO TO MEMORY GARDEN
 ========================================= */
 
+function goToMemories() {
 
-/*
-   This function is called by the
-   "Aadi Ke Liye Message" button.
-*/
+    showScreen("memoryScreen");
+
+
+    /*
+       Play memories.mp3 when
+       the photos appear.
+    */
+
+    setTimeout(() => {
+
+        playVoice("memories.mp3");
+
+    }, 300);
+
+}
+
+
+/* =========================================
+   MEMORY → MESSAGE
+========================================= */
 
 function goToMessage() {
 
@@ -433,40 +630,41 @@ function goToMessage() {
     showScreen("messageScreen");
 
 
-    /*
-       Play the actual downloaded message.mp3.
-    */
-
     setTimeout(() => {
 
         playVoice("message.mp3");
 
-    }, 400);
+    }, 300);
 
 }
 
 
 /* =========================================
-   MESSAGE VOICE BUTTON
+   MESSAGE REPLAY BUTTON
 ========================================= */
 
 const messageVoiceButton =
-    document.getElementById("messageVoiceButton");
+    document.getElementById(
+        "messageVoiceButton"
+    );
 
 
 if (messageVoiceButton) {
 
-    messageVoiceButton.addEventListener("click", () => {
+    messageVoiceButton.addEventListener(
+        "click",
+        () => {
 
-        playVoice("message.mp3");
+            playVoice("message.mp3");
 
-    });
+        }
+    );
 
 }
 
 
 /* =========================================
-   GIFT SCREEN
+   MESSAGE → GIFT
 ========================================= */
 
 function goToGift() {
@@ -476,16 +674,11 @@ function goToGift() {
     showScreen("giftScreen");
 
 
-    /*
-       Play gift.mp3 as soon as
-       the gift page opens.
-    */
-
     setTimeout(() => {
 
         playVoice("gift.mp3");
 
-    }, 400);
+    }, 300);
 
 }
 
@@ -499,14 +692,15 @@ function openGift() {
     const gift =
         document.getElementById("giftBox");
 
-    if (!gift) return;
+
+    if (!gift) {
+        return;
+    }
 
 
-    /*
-       Prevent opening twice.
-    */
-
-    if (gift.classList.contains("opened")) {
+    if (
+        gift.classList.contains("opened")
+    ) {
 
         return;
 
@@ -519,6 +713,7 @@ function openGift() {
     const hint =
         document.getElementById("giftHint");
 
+
     if (hint) {
 
         hint.textContent =
@@ -527,42 +722,27 @@ function openGift() {
     }
 
 
-    /*
-       Continue the gift voice.
-    */
+    stopAudio();
 
-    playVoice("gift.mp3");
-
-
-    /*
-       Confetti starts immediately.
-    */
 
     createConfetti();
 
-
-    /*
-       After gift opens, go to final screen.
-    */
 
     setTimeout(() => {
 
         showScreen("finalScreen");
 
+
         createConfetti();
 
-
-        /*
-           Play FINAL voice only on final page.
-        */
 
         setTimeout(() => {
 
             playVoice("final.mp3");
 
-        }, 500);
+        }, 400);
 
-    }, 2500);
+    }, 1800);
 
 }
 
@@ -574,9 +754,14 @@ function openGift() {
 function createConfetti() {
 
     const container =
-        document.getElementById("confettiContainer");
+        document.getElementById(
+            "confettiContainer"
+        );
 
-    if (!container) return;
+
+    if (!container) {
+        return;
+    }
 
 
     const emojis = [
@@ -595,10 +780,15 @@ function createConfetti() {
     ];
 
 
-    for (let i = 0; i < 70; i++) {
+    for (
+        let i = 0;
+        i < 70;
+        i++
+    ) {
 
         const piece =
             document.createElement("span");
+
 
         piece.className =
             "confetti";
@@ -607,7 +797,8 @@ function createConfetti() {
         piece.textContent =
             emojis[
                 Math.floor(
-                    Math.random() * emojis.length
+                    Math.random() *
+                    emojis.length
                 )
             ];
 
@@ -617,14 +808,19 @@ function createConfetti() {
 
 
         piece.style.animationDuration =
-            (2.5 + Math.random() * 3) + "s";
+            (
+                2.5 +
+                Math.random() * 3
+            ) + "s";
 
 
         piece.style.animationDelay =
             Math.random() * 1.5 + "s";
 
 
-        container.appendChild(piece);
+        container.appendChild(
+            piece
+        );
 
 
         setTimeout(() => {
@@ -642,44 +838,50 @@ function createConfetti() {
    PHOTO CLICK
 ========================================= */
 
-document.addEventListener("click", event => {
+document.addEventListener(
+    "click",
+    event => {
 
-    const card =
-        event.target.closest(".photo-card");
+        const card =
+            event.target.closest(
+                ".photo-card"
+            );
 
-    if (!card) return;
 
-
-    card.animate(
-
-        [
-
-            {
-                transform: "scale(1)"
-            },
-
-            {
-                transform:
-                    "scale(1.12) rotate(0deg)"
-            },
-
-            {
-                transform: "scale(1)"
-            }
-
-        ],
-
-        {
-            duration: 500
+        if (!card) {
+            return;
         }
 
-    );
 
-});
+        card.animate(
+            [
+                {
+                    transform:
+                        "scale(1)"
+                },
+
+                {
+                    transform:
+                        "scale(1.12) rotate(0deg)"
+                },
+
+                {
+                    transform:
+                        "scale(1)"
+                }
+
+            ],
+            {
+                duration: 500
+            }
+        );
+
+    }
+);
 
 
 /* =========================================
-   PREVENT ACCIDENTAL DOUBLE TAP ZOOM
+   MOBILE DOUBLE TAP
 ========================================= */
 
 let lastTouchEnd = 0;
@@ -693,7 +895,9 @@ document.addEventListener(
             Date.now();
 
 
-        if (now - lastTouchEnd <= 300) {
+        if (
+            now - lastTouchEnd <= 300
+        ) {
 
             event.preventDefault();
 
