@@ -31,9 +31,7 @@
 </div>
 
 
-<!-- =========================================
-     VOICE CONTROL
-========================================= -->
+<!-- VOICE CONTROL -->
 
 <button
     id="voiceButton"
@@ -43,6 +41,15 @@
 >
     🔊
 </button>
+
+
+<!-- =========================================
+     HIDDEN AUDIO PLAYER
+     The same audio element is reused for
+     every MP3. This is more reliable on mobile.
+========================================= -->
+
+<audio id="voicePlayer" preload="auto"></audio>
 
 
 <!-- =========================================
@@ -146,7 +153,7 @@
 
 
 <!-- =========================================
-     QUIZ SCREEN
+     QUIZ
 ========================================= -->
 
 <section id="gameScreen" class="screen hidden">
@@ -198,7 +205,6 @@
         <p
             id="gameMessage"
             class="game-message"
-            aria-live="polite"
         ></p>
 
     </div>
@@ -263,88 +269,59 @@
         <div class="photo-grid">
 
             <div class="photo-card">
-                <img
-                    src="./photo1.jpg"
-                    alt="Aadi memory 1"
-                >
+                <img src="./photo1.jpg" alt="Aadi memory 1">
                 <span>🥰 Cute Aadi</span>
             </div>
 
             <div class="photo-card">
-                <img
-                    src="./photo2.jpg"
-                    alt="Aadi memory 2"
-                >
+                <img src="./photo2.jpg" alt="Aadi memory 2">
                 <span>🌸 Sweet Smile</span>
             </div>
 
             <div class="photo-card">
-                <img
-                    src="./photo3.jpg"
-                    alt="Aadi memory 3"
-                >
+                <img src="./photo3.jpg" alt="Aadi memory 3">
                 <span>👑 Little Princess</span>
             </div>
 
             <div class="photo-card">
-                <img
-                    src="./photo4.jpg"
-                    alt="Aadi memory 4"
-                >
+                <img src="./photo4.jpg" alt="Aadi memory 4">
                 <span>✨ Happy Aadi</span>
             </div>
 
             <div class="photo-card">
-                <img
-                    src="./photo5.jpg"
-                    alt="Aadi memory 5"
-                >
+                <img src="./photo5.jpg" alt="Aadi memory 5">
                 <span>🧸 My Cutie</span>
             </div>
 
             <div class="photo-card">
-                <img
-                    src="./photo6.jpg"
-                    alt="Aadi memory 6"
-                >
+                <img src="./photo6.jpg" alt="Aadi memory 6">
                 <span>💖 Beautiful Memory</span>
             </div>
 
             <div class="photo-card">
-                <img
-                    src="./photo7.jpg"
-                    alt="Aadi memory 7"
-                >
+                <img src="./photo7.jpg" alt="Aadi memory 7">
                 <span>🌈 Best Smile</span>
             </div>
 
             <div class="photo-card">
-                <img
-                    src="./photo8.jpg"
-                    alt="Aadi memory 8"
-                >
+                <img src="./photo8.jpg" alt="Aadi memory 8">
                 <span>⭐ Little Star</span>
             </div>
 
             <div class="photo-card">
-                <img
-                    src="./photo9.jpg"
-                    alt="Aadi memory 9"
-                >
+                <img src="./photo9.jpg" alt="Aadi memory 9">
                 <span>🦋 Sweet Memory</span>
             </div>
 
             <div class="photo-card">
-                <img
-                    src="./photo10.jpg"
-                    alt="Aadi memory 10"
-                >
+                <img src="./photo10.jpg" alt="Aadi memory 10">
                 <span>❤️ Forever Special</span>
             </div>
 
         </div>
 
         <button
+            id="memoryContinueButton"
             class="next-button"
             type="button"
             onclick="goToMessage()"
@@ -540,10 +517,10 @@
 
 
 <!-- =========================================
-     VERSIONED SCRIPT
+     SCRIPT
 ========================================= -->
 
-<script src="./script.js?v=20"></script>
+<script src="./script.js?v=30"></script>
 
 </body>
 </html>
