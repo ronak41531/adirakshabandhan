@@ -1,6 +1,6 @@
 /* =========================================
    AADI RAKSHA BANDHAN WEBSITE
-   EXACT MP3 VOICE VERSION
+   COMPLETE MP3 VOICE SYSTEM
 ========================================= */
 
 
@@ -19,11 +19,13 @@ const screens = [
     "finalScreen"
 ];
 
+
 function showScreen(id) {
 
     screens.forEach(screen => {
 
-        const element = document.getElementById(screen);
+        const element =
+            document.getElementById(screen);
 
         if (element) {
             element.classList.add("hidden");
@@ -31,65 +33,69 @@ function showScreen(id) {
 
     });
 
-    const selected = document.getElementById(id);
+
+    const selected =
+        document.getElementById(id);
 
     if (selected) {
+
         selected.classList.remove("hidden");
+
     }
+
 
     window.scrollTo({
         top: 0,
         behavior: "smooth"
     });
+
 }
 
 
 /* =========================================
-   MP3 VOICE SYSTEM
+   VOICE SYSTEM
 ========================================= */
 
 let voiceEnabled = true;
+
 let currentAudio = null;
 
 
-/*
-   Voice button
-*/
+/* =========================================
+   VOICE BUTTON
+========================================= */
 
 const voiceButton =
     document.getElementById("voiceButton");
 
 
-/*
-   Play exact uploaded MP3
-*/
+if (voiceButton) {
 
-function playVoice(filename) {
+    voiceButton.addEventListener("click", () => {
 
-    if (!voiceEnabled) return;
+        voiceEnabled = !voiceEnabled;
 
-    stopVoice();
 
-    currentAudio =
-        new Audio("./" + filename);
+        voiceButton.textContent =
+            voiceEnabled
+                ? "🔊"
+                : "🔇";
 
-    currentAudio.volume = 1;
 
-    currentAudio.play().catch(error => {
+        if (!voiceEnabled) {
 
-        console.log(
-            "Audio playback error:",
-            filename,
-            error
-        );
+            stopVoice();
+
+        }
 
     });
+
 }
 
 
-/*
-   Stop current voice
-*/
+/* =========================================
+   STOP CURRENT AUDIO
+========================================= */
 
 function stopVoice() {
 
@@ -106,22 +112,34 @@ function stopVoice() {
 }
 
 
-/*
-   Voice ON/OFF
-*/
+/* =========================================
+   PLAY MP3
+========================================= */
 
-if (voiceButton) {
+function playVoice(filename) {
 
-    voiceButton.addEventListener("click", () => {
+    if (!voiceEnabled) {
+        return;
+    }
 
-        voiceEnabled = !voiceEnabled;
 
-        voiceButton.textContent =
-            voiceEnabled ? "🔊" : "🔇";
+    stopVoice();
 
-        if (!voiceEnabled) {
-            stopVoice();
-        }
+
+    currentAudio =
+        new Audio("./" + filename);
+
+
+    currentAudio.volume = 1;
+
+
+    currentAudio.play().catch(error => {
+
+        console.log(
+            "Audio playback failed:",
+            filename,
+            error
+        );
 
     });
 
@@ -129,7 +147,7 @@ if (voiceButton) {
 
 
 /* =========================================
-   START
+   START BUTTON
 ========================================= */
 
 const startButton =
@@ -142,16 +160,81 @@ if (startButton) {
 
         /*
            IMPORTANT:
-           This is the FIRST voice.
+
+           The first page MUST remain visible
+           while welcome.mp3 is playing.
+
+           We DO NOT change the screen here.
         */
 
-        playVoice("welcome.mp3");
+
+        if (!voiceEnabled) {
+
+            showScreen("welcomeScreen");
+
+            return;
+
+        }
+
+
+        stopVoice();
+
+
+        currentAudio =
+            new Audio("./welcome.mp3");
+
+
+        currentAudio.volume = 1;
+
 
         /*
-           Move to welcome screen.
+           When the welcome voice FINISHES,
+           THEN move to the next page.
         */
 
-        showScreen("welcomeScreen");
+        currentAudio.addEventListener(
+            "ended",
+            () => {
+
+                showScreen("welcomeScreen");
+
+            },
+            { once: true }
+        );
+
+
+        /*
+           If audio fails, don't leave
+           the child stuck on the first page.
+        */
+
+        currentAudio.addEventListener(
+            "error",
+            () => {
+
+                console.log(
+                    "welcome.mp3 could not be played."
+                );
+
+
+                showScreen("welcomeScreen");
+
+            },
+            { once: true }
+        );
+
+
+        currentAudio.play().catch(error => {
+
+            console.log(
+                "Welcome audio error:",
+                error
+            );
+
+
+            showScreen("welcomeScreen");
+
+        });
 
     });
 
@@ -164,13 +247,19 @@ if (startButton) {
 
 function goToGame() {
 
+    showScreen("gameScreen");
+
+
     /*
-       Play quiz introduction.
+       Play quiz introduction
+       after the quiz screen appears.
     */
 
-    playVoice("quiz-intro.mp3");
+    setTimeout(() => {
 
-    showScreen("gameScreen");
+        playVoice("quiz-intro.mp3");
+
+    }, 300);
 
 }
 
@@ -181,18 +270,29 @@ function goToGame() {
 
 function wrongAnswer(button) {
 
+    if (!button) return;
+
+
     button.classList.remove("shake");
+
+
+    /*
+       Force animation restart
+    */
 
     void button.offsetWidth;
 
+
     button.classList.add("shake");
 
-    const message =
+
+    const gameMessage =
         document.getElementById("gameMessage");
 
-    if (message) {
 
-        message.textContent =
+    if (gameMessage) {
+
+        gameMessage.textContent =
             "Oops! Dobara try karo Aadi! 😜💖";
 
     }
@@ -206,25 +306,27 @@ function wrongAnswer(button) {
 
 function correctAnswer() {
 
-    const message =
+    const gameMessage =
         document.getElementById("gameMessage");
 
-    if (message) {
 
-        message.textContent =
+    if (gameMessage) {
+
+        gameMessage.textContent =
             "Yayyyyy! Bilkul sahi! 🎉👑❤️";
 
     }
 
+
     /*
-       EXACT uploaded voice.
+       Play exact uploaded voice.
     */
 
     playVoice("quiz-correct.mp3");
 
 
     /*
-       Give voice time before next screen.
+       Wait before moving to next game.
     */
 
     setTimeout(() => {
@@ -233,18 +335,23 @@ function correctAnswer() {
 
         startHeartGame();
 
-    }, 2200);
+    }, 3000);
 
 }
 
 
 /* =========================================
-   HEART GAME
+   HEART GAME VARIABLES
 ========================================= */
 
 let heartScore = 0;
+
 let heartGameStarted = false;
 
+
+/* =========================================
+   START HEART GAME
+========================================= */
 
 function startHeartGame() {
 
@@ -256,13 +363,17 @@ function startHeartGame() {
     const score =
         document.getElementById("heartScore");
 
+
     if (score) {
+
         score.textContent = "0";
+
     }
 
 
     const message =
         document.getElementById("heartMessage");
+
 
     if (message) {
 
@@ -275,7 +386,9 @@ function startHeartGame() {
     const area =
         document.getElementById("heartArea");
 
+
     if (!area) return;
+
 
     area.innerHTML = "";
 
@@ -288,8 +401,7 @@ function startHeartGame() {
 
 
     /*
-       First heart appears shortly after
-       the introduction starts.
+       Wait a little before first heart.
     */
 
     setTimeout(() => {
@@ -300,7 +412,7 @@ function startHeartGame() {
 
         }
 
-    }, 900);
+    }, 1200);
 
 }
 
@@ -313,11 +425,13 @@ function createHeart() {
 
     if (!heartGameStarted) return;
 
+
     if (heartScore >= 7) return;
 
 
     const area =
         document.getElementById("heartArea");
+
 
     if (!area) return;
 
@@ -325,16 +439,23 @@ function createHeart() {
     const heart =
         document.createElement("button");
 
+
     heart.className = "heart";
+
 
     heart.innerHTML = "❤️";
 
+
+    /*
+       Random position
+    */
 
     const maxX =
         Math.max(
             20,
             area.clientWidth - 65
         );
+
 
     const maxY =
         Math.max(
@@ -346,108 +467,128 @@ function createHeart() {
     heart.style.left =
         Math.random() * maxX + "px";
 
+
     heart.style.top =
         Math.random() * maxY + "px";
 
 
-    heart.addEventListener("click", () => {
+    /*
+       Heart click
+    */
 
-        if (!heartGameStarted) return;
+    heart.addEventListener(
+        "click",
+        () => {
 
-
-        heartScore++;
-
-
-        const score =
-            document.getElementById("heartScore");
-
-        if (score) {
-
-            score.textContent =
-                heartScore;
-
-        }
+            if (!heartGameStarted) {
+                return;
+            }
 
 
-        heart.remove();
+            heartScore++;
 
 
-        /* =================================
-           HEART CAUGHT
-        ================================= */
-
-        /*
-           Your short heart-caught.mp3
-           plays every time a heart is caught.
-        */
-
-        playVoice("heart-caught.mp3");
+            const score =
+                document.getElementById(
+                    "heartScore"
+                );
 
 
-        /* =================================
-           7 HEARTS COMPLETE
-        ================================= */
+            if (score) {
 
-        if (heartScore >= 7) {
-
-            heartGameStarted = false;
-
-
-            const message =
-                document.getElementById("heartMessage");
-
-            if (message) {
-
-                message.textContent =
-                    "Wowww! Aadi ne saare hearts pakad liye! 🎉❤️";
+                score.textContent =
+                    heartScore;
 
             }
 
 
+            heart.remove();
+
+
             /*
-               Let heart-caught finish first.
+               Play short heart-caught
+               every time.
             */
 
-            setTimeout(() => {
+            playVoice(
+                "heart-caught.mp3"
+            );
 
-                showScreen("memoryScreen");
+
+            /*
+               Seven hearts complete
+            */
+
+            if (heartScore >= 7) {
+
+                heartGameStarted =
+                    false;
+
+
+                const message =
+                    document.getElementById(
+                        "heartMessage"
+                    );
+
+
+                if (message) {
+
+                    message.textContent =
+                        "Wowww! Aadi ne saare hearts pakad liye! 🎉❤️";
+
+                }
 
 
                 /*
-                   Memory Garden voice
+                   Wait for the final
+                   heart sound.
                 */
 
                 setTimeout(() => {
 
-                    playVoice("memories.mp3");
+                    showScreen(
+                        "memoryScreen"
+                    );
 
-                }, 500);
+
+                    /*
+                       Play Memory Garden voice
+                    */
+
+                    setTimeout(() => {
+
+                        playVoice(
+                            "memories.mp3"
+                        );
+
+                    }, 500);
 
 
-            }, 2200);
+                }, 2200);
 
+
+            }
+
+            else {
+
+                /*
+                   Create another heart.
+                */
+
+                setTimeout(() => {
+
+                    if (heartGameStarted) {
+
+                        createHeart();
+
+                    }
+
+                }, 700);
+
+            }
 
         }
-
-        else {
-
-            /*
-               Create next heart.
-            */
-
-            setTimeout(() => {
-
-                if (heartGameStarted) {
-
-                    createHeart();
-
-                }
-
-            }, 700);
-
-        }
-
-    });
+    );
 
 
     area.appendChild(heart);
@@ -463,6 +604,7 @@ function goToMessage() {
 
     stopVoice();
 
+
     showScreen("messageScreen");
 
 
@@ -472,7 +614,9 @@ function goToMessage() {
 
     setTimeout(() => {
 
-        playVoice("message.mp3");
+        playVoice(
+            "message.mp3"
+        );
 
     }, 500);
 
@@ -495,7 +639,9 @@ if (messageVoiceButton) {
         "click",
         () => {
 
-            playVoice("message.mp3");
+            playVoice(
+                "message.mp3"
+            );
 
         }
     );
@@ -511,16 +657,19 @@ function goToGift() {
 
     stopVoice();
 
+
     showScreen("giftScreen");
 
 
     /*
-       Play secret gift introduction.
+       Play gift introduction.
     */
 
     setTimeout(() => {
 
-        playVoice("gift.mp3");
+        playVoice(
+            "gift.mp3"
+        );
 
     }, 500);
 
@@ -534,17 +683,22 @@ function goToGift() {
 function openGift() {
 
     const gift =
-        document.getElementById("giftBox");
+        document.getElementById(
+            "giftBox"
+        );
+
 
     if (!gift) return;
 
 
     /*
-       Prevent opening twice.
+       Prevent double opening.
     */
 
     if (
-        gift.classList.contains("opened")
+        gift.classList.contains(
+            "opened"
+        )
     ) {
 
         return;
@@ -552,11 +706,16 @@ function openGift() {
     }
 
 
-    gift.classList.add("opened");
+    gift.classList.add(
+        "opened"
+    );
 
 
     const hint =
-        document.getElementById("giftHint");
+        document.getElementById(
+            "giftHint"
+        );
+
 
     if (hint) {
 
@@ -567,37 +726,42 @@ function openGift() {
 
 
     /*
-       Stop gift introduction.
+       Stop gift voice.
     */
 
     stopVoice();
 
 
     /*
-       Confetti.
+       Confetti before final.
     */
 
     createConfetti();
 
 
     /*
-       Show final page.
+       Open final screen.
     */
 
     setTimeout(() => {
 
-        showScreen("finalScreen");
+        showScreen(
+            "finalScreen"
+        );
+
 
         createConfetti();
 
 
         /*
-           Final exact MP3.
+           Play final.mp3.
         */
 
         setTimeout(() => {
 
-            playVoice("final.mp3");
+            playVoice(
+                "final.mp3"
+            );
 
         }, 600);
 
@@ -618,10 +782,12 @@ function createConfetti() {
             "confettiContainer"
         );
 
+
     if (!container) return;
 
 
     const emojis = [
+
         "🎉",
         "❤️",
         "💖",
@@ -632,13 +798,21 @@ function createConfetti() {
         "🦋",
         "🌈",
         "🎊"
+
     ];
 
 
-    for (let i = 0; i < 70; i++) {
+    for (
+        let i = 0;
+        i < 70;
+        i++
+    ) {
 
         const piece =
-            document.createElement("span");
+            document.createElement(
+                "span"
+            );
+
 
         piece.className =
             "confetti";
@@ -654,12 +828,15 @@ function createConfetti() {
 
 
         piece.style.left =
-            Math.random() * 100 + "%";
+            Math.random() * 100 +
+            "%";
 
 
         piece.style.animationDuration =
-            (2.5 +
-            Math.random() * 3) +
+            (
+                2.5 +
+                Math.random() * 3
+            ) +
             "s";
 
 
@@ -668,7 +845,9 @@ function createConfetti() {
             "s";
 
 
-        container.appendChild(piece);
+        container.appendChild(
+            piece
+        );
 
 
         setTimeout(() => {
@@ -695,11 +874,13 @@ document.addEventListener(
                 ".photo-card"
             );
 
+
         if (!card) return;
 
 
         card.animate(
             [
+
                 {
                     transform:
                         "scale(1)"
@@ -714,6 +895,7 @@ document.addEventListener(
                     transform:
                         "scale(1)"
                 }
+
             ],
             {
                 duration: 500
@@ -725,7 +907,7 @@ document.addEventListener(
 
 
 /* =========================================
-   PREVENT DOUBLE TAP ZOOM
+   PREVENT DOUBLE-TAP ZOOM
 ========================================= */
 
 let lastTouchEnd = 0;
